@@ -1,0 +1,12 @@
+<HR>
+<P>
+This search system is powered by 
+<STRONG><A HREF="$NMZ_URL">Namazu</A>
+<!-- VERSION --> v$VERSION <!-- VERSION -->
+</STRONG>
+</P>
+<ADDRESS>
+<A HREF="mailto:$ADMIN">$ADMIN</A>
+</ADDRESS>
+</BODY>
+</HTML>

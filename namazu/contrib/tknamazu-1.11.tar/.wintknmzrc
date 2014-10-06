@@ -1,0 +1,37 @@
+#
+# Tcl / Tk Namazu client configuration file (for Windows)
+#
+
+EXTBROWSER		c:/Program Files/Netscape/Communicator/Program/netscape.exe
+EXTVIEWER		c:/windows/notepad.exe
+
+NAMAZU			c:/usr/local/bin/namazu.exe
+BROWSER			c:/usr/local/bin/lynx.exe -dump
+UNCOMPRESS		c:/cygnus/b19/H-i386-cygwin32/bin/zcat
+MANPAGE			c:/usr/local/bin/groff -man -Tnippon
+MANPAGEFILTER		
+MANPATH			c:/usr/local/man/ja_JP.EUC c:/usr/local/man/ja_JP.ujis c:/usr/man/ja_JP.ujis c:/usr/local/man c:/usr/share/man c:/usr/bin/man c:/usr/man c:/usr/X11R6/man c:/usr/openwin/man
+GNUINFO			c:/usr/local/bin/info
+GNUINFOFILTER		
+GNUINFOTMP		c:/tmp/.gnuinfotmp
+MKNMZ			c:/usr/local/bin/mknmz.bat
+WDNMZ			c:/usr/local/bin/wdnmz.bat
+
+WIDTH			80
+HEIGHT			20
+WIDGETFONT		-*-Fixed-Medium-R-Normal--24-110-75-75-c-*-*-*
+TEXTFONT		-*-Fixed-Medium-R-Normal--24-110-75-75-c-*-*-*
+WIDGETCOLOR		gray90
+LANGUAGE		JAPANESE
+OPTIONS			
+NMZCONF			
+MKLOCATION		./
+MKOPTIONS		
+WDLOCATION		./NMZ.i
+DBOUTPUTDIR		c:/usr/local/namazu/index
+
+DATABASES		c:/usr/local/namazu/index
+
+DATABASES1		main c:/usr/local/namazu/index
+
+BOOKMARKS1		Namazu_intro c:/usr/local/namazu/doc/intro.html

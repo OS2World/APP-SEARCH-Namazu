@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"
+        "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+<head>
+<link rev=MADE href="mailto:satoru-t@is.aist-nara.ac.jp">
+<title>History of Namazu</title>
+</head>
+<body lang="ja">
+<h1>Namazu の歴史資料</h1>
+<p>Last Modified: 1999-09-28
+</p>
+<hr>
+
+<h2><a name="HISTORY">発展の軌跡</a></h2>
+<ul>
+<li><strong>1997-01-07:</strong> httpdown を手に入れる
+<li><strong>1997-01-08:</strong> Hard Rock / Heavy Metal / Progressive Rock
+関連のウェブペイジを収集して簡単な検索エンジンを作る, 実体は単なる 
+grepみたいなもの。遅くてがっかりする
+<li><strong>4/?/1997:</strong> SSE 1.1 を入手する, 日本語の単語のわかち書きに KAKASI を用いる方法などドキュメントを参考にした
+<li><strong>1997-06-30:</strong> あたためていたアイディアをもとにコーディングを開始
+<li><strong>1997-07-07:</strong> とりあえず動くレヴェルにまで完成
+したのでまたもやロック関連の検索エンジンを作る,  Namazuの原型が動きはじめる
+
+<li><strong>1997-07-08:</strong> linux-users Mailing List に宣伝する, 馬場肇さんとやまだあきらさんが反応してくださる
+
+<li><strong>1997-07-09:</strong> w3-search Mailing List に宣伝を行う
+
+<li><strong>1997-07-25:</strong> 馬場肇さんとやまだあきらさんにテストを
+    依頼 (version 0.1.0) - 23 Kb
+<li><strong>1997-07-31:</strong> 一般向けにテスト版 (version 0.1.2) を初
+    公開 - 28 Kb
+<li><strong>1997-08-18:</strong> version 0.3.0 を公開, 前方一致検索のサ
+    ポート - 32 Kb
+<li><strong>1997-08-21:</strong> fj に宣伝を行う, このときのヴァージョン
+    は 0.3.1 - 34 Kb
+<li><strong>1997-08-31:</strong> version 1.0.0 を正式公開, fj.sources に
+    投稿 - 45Kb
+<li><strong>1997-11-13:</strong> version 1.0.4 を公開, fj.sources に投稿, 
+ この版から Win32 をサポート - 60 Kb<br>
+	(林卓司さんの協力による, 後に広瀬健一さんが引き継ぐ)
+<li><strong>1997-12-21:</strong> version 1.1.0 を公開, fj.sources に投稿
+    - 69 Kb
+<li><strong>1998-01-24:</strong> Namazuメイリングリストを開設
+<li><strong>1998-03-09:</strong> version 1.1.1.5 を公開, この版から OS/2
+    をサポート (清水和佳さんによる) - 93 Kb
+<li><strong>1998-03-31:</strong> version 1.1.2 を公開, 複数のインデック
+    スに対応 - 148 Kb
+<li><strong>1998-06-11:</strong> version 1.1.2.5 を公開 (それなりに安定
+    した版) - 181 Kb
+<li><strong>1998-06-22:</strong> version 1.2.0 を公開, フレイズ検索およ
+    び正規表現/中間一致/後方一致の検索をサポート - 267 Kb
+<li><strong>1998-09-30:</strong> version 1.2.0.8 を公開 (それなりに安定
+    した版) - 287 Kb
+<li><strong>1998-10-31:</strong> version 1.3.0.0 を公開, 文書の削
+除/更新を反映したインデックスのアップデート、文書のタイムスタンプ
+によるソート、フィールド指定の検索をサポート - 325 Kb
+<li><strong>1999-01-21:</strong> NamazuのWebサイトを
+<a href="http://openlab.ring.gr.jp/namazu/">
+http://openlab.ring.gr.jp/namazu/</a> に引っ越し
+た
+<li><strong>1999-08-31:</strong> version 1.3.0.10 を公開 (それなりに安定
+    した版) - 337 Kb
+</ul>
+
+<h2><a name="CONTRIBUTION">頂いたコードおよびアイディア (主なもの)</a></h2>
+<ul>
+<li><strong>v1.0.2</strong>
+  <ul>
+  <li>一部の perl で日本語 EUC が正しくソートされない問題を解決する
+    コード -- 
+     <em>古川令さん</em>
+  </ul>
+<li><strong>v1.0.3</strong>
+  <ul>
+  <li>uuencode の部分を無視するコード -- 
+    <em>古川令さん</em>
+  <li>JIS X 0208 の英数字/記号を ASCIIへ変換のコード -- 
+    <em>やまだあきらさん</em>
+  </ul>
+<li><strong>v1.0.4</strong>
+  <ul>
+  <li>Mail/News のファイルのヘッダ部分をうまく処理するコード -- 
+    <em>古川令さん</em>
+  <li>BinHex の部分を無視するコード -- 
+    <em>古川令さん</em>
+  <li>連番のファイルを新しい順/古い順のソートで検索結果の表示を行う
+  コード --
+    <em>古川令さん</em>
+  <li>Windows 95/NT で動作させるコード -- 
+    <em>林卓司さん</em>
+  <li>MHonArc で作成された HTML を処理するアイディア -- 
+    <em>友清孝志さん, 村田暢宏さん</em>
+  </ul>
+<li><strong>v1.1.0</strong>
+  <ul>
+  <li>Makefile -- 
+    <em>佐藤文優さん</em>
+  <li>Mail/News の要約をうまく扱うアイディア -- 
+    <em>やまだあきらさん</em>
+  </ul>
+<li><strong>v1.1.1</strong>
+  <ul>
+  <li>MIME Multipart の Mail/News から text/plain 以外を除外するフィル
+  タの原型となるコード -- 
+    <em>古川令さん</em>
+  </ul>
+<li><strong>v1.1.1.3</strong>
+  <ul>
+  <li>OS/2 に対応させるコード -- 
+    <em>清水和佳さん</em>
+  </ul>
+<li><strong>v1.1.2</strong>
+  <ul>
+  <li>メッセージを日本語/英語で選べるようするアイディア -- 
+    <em>森本朗裕さん</em>
+  </ul>
+<li><strong>v1.1.2.2</strong>
+  <ul>
+  <li>インデックス時に語の送り仮名の削除をするコード -- 
+    <em>古川令さん</em>
+  <li>インデックス時に語の両端の記号を削除するコード -- 
+    <em>古川令さん</em>
+  </ul>
+<li><strong>v1.2.0</strong>
+  <ul>
+  <li>要約の中に罫線や '=========' のような無意味な文字列ができるだけ
+  含まれないようにするコード -- 
+    <em>古川令さん</em>
+  <li>正規表現のエンジン (Ruby のソースよりいただきました) -- 
+    <em>まつもとゆきひろさん</em>
+  <li>(ちょっとあやしい) フレーズ検索を実装するアイディア -- 
+    <em>古川令さん</em>
+  </ul>
+
+<li><strong>v1.2.0.2</strong>
+  <ul>
+  <li>Win32, OS/2 のドライヴレターを扱うコード --
+    <em>広瀬健一さん</em>
+  </ul>
+<li><strong>v1.3.0.0</strong>
+  <ul>
+  <li>Subject:, From: などのフィールド指定の検索を実装するアイディ
+  ア -- 
+    <em>加藤裕さん</em>
+  <li>欠番方式による文書の更新/削除を反映したインデックスのアップ
+  デートに対応 -- 
+    <em>古川竜雄さん</em>
+  </ul>
+</ul>
+
+
+
+<h2><a name="RELATED_SOFTWARE">関連ソフトウェア</a></h2>
+<ul>
+<li><strong>1998-01-31:</strong> namazu.el-19980131.01 が開発される by やまだあきらさん, まつもとゆきひろさん, 馬場肇さん
+<li><strong>1998-02-06:</strong> bnamazu が開発される by 馬場肇さん
+<li><strong>1998-03-04:</strong> NamazuJAVA v0.2 が開発される by まつむらのぞみさん
+<li><strong>1998-03-04:</strong> pnamazu が開発される by 古川令さん
+<li><strong>1998-03-25:</strong> tknamazu v1.00 が開発される by 広瀬健一さん
+<li><strong>1998-03-25:</strong> search-s v0.7 が開発される by 山下誠二さん
+</ul>
+
+<h2><a name="MAGAZINES">雑誌記事</a></h2>
+
+<ul>
+<li>日経インターネットテクノロジー 1997年10月号 P. 184-185<br>
+    <cite>「蓄積したHTML文書の活用へ、あなたのWWWサイトにも全文検索シス
+    テムを」</cite> - 末安泰三
+<li>月刊アスキー 1998年6月号 P. 405<br>
+    <cite>「アスキーロードテスト CHICKEN97 - Namazuで過去記事全文検索システム構築」</cite> - 西村
+<li>Linux Japan 1998年7月号 P. 148-152<br>
+    <cite>「Linux 奇譚 - Namazuでパーソナル検索システム」</cite> - やまだあきら
+<li>OS/2 MAGAZINE 1998年8月号 P. 66-67<br>
+    <cite>「ICSSによるWWWサーバーの構築」</cite> - 清水和佳
+<li>UNIX USER 1998年11月号 P. 103-112<br>
+    <cite>「Webサーバー構築術 - 全文検索エンジン Namazuの導入」</cite> - 谷口圭司
+<li>UNIX USER 1998年12月号 P. 112-113<br>
+    <cite>「Webサーバー構築術 - 検索エンジンとWWWロボット」</cite> - 谷口圭司
+<li>Software Design 1998年12月号 P. 43-50<br>
+    <cite>「はじめての Plamo Linux - 全文検索システム Namazu の活
+    用」</cite> - 高林哲
+<li>月刊SunWorld 1999年3月号 P. 90-93<br>
+    <cite>「フリー・ソフトウェア/シェアウェア活用ガイド - 全文検索
+    エンジンのインストール」</cite> - 佐藤通敏
+<li>Software Design Linux Issue すみからすみまで Linux (ムック) P. 81-92<br>
+    <cite>「全文検索システムの魅力 Namazu &amp; freeWAIS-sf - 
+    全文検索システム Namazu の活用」</cite> - 高林哲
+<li>UNIX MAGAZINE 1999年10月号 P. 146-150<br>
+    <cite>「こけつまろびつUNIX - 電子メールを便利に使う」</cite> - 杜ゆずこ
+</ul>
+
+<h2><a name="BOOKS">書籍</a></h2>
+
+<ul>
+<li>馬場肇, <cite>日本語全文検索システムの構築と活用</cite>, ソフトバンク, 1998年9月24日
+</ul>
+
+<h2><a name="EVENTS">催し</a></h2>
+
+<ul>
+<li><strong>1998-06-06:</strong> 第 1回 Namazu Conference - 東京 - 新宿ととやにて (単なる宴会)
+<!-- 参加者: 石川, 加藤, 國頭, 小島, 清水, 高林, 広瀬, 龍池 -->
+<li><strong>1998-11-10:</strong> 第 2回 Namazu Conference - 東京 - 
+ライオン 新宿センタービル店 (単なる宴会)
+<!-- 参加者: 加藤, 岸, 桑村, 國頭, 小島, 塩原, 清水, 高林, 樋口, 広瀬, 廣瀬, 龍池 -->
+<li><strong>1998-11-11:</strong> <a href="http://www.oreilly.co.jp/pcjp98/">Perl Conference Japan</a> 
+のチュートリアルにて Namazuのケイススタディを発表 - 高林哲
+<li><strong>1998-12-18:</strong> <a href="http://iw98.linux.or.jp">Linux Conference '98</a> 
+にて『Namazu開発物語 〜フリーソフトウェアを作ろう〜』なる題目にて
+発表 - 高林哲, 馬場肇, よしだともこ, 樋口千洋
+<li><strong>1998-12-29:</strong> 第 3回 Namazu Conference - 浜松 - 
+マイン・シュロスにて (単なる宴会)
+<!-- 参加者: 石川, 鈴木, 高林, 野首, 古川, 山下-->
+<li><strong>1999-06-05:</strong> 第 4回 Namazu Conference - 
+東京 - 大皿料理 花のれん 新宿店 (単なる宴会)
+<!-- 参加者: 高林, 廣瀬, 広瀬, 野首, まがら, 前田, 小島, 道向, 
+いわきり, 國頭 -->
+<li><strong>1999-06-06:</strong> <a href="http://www.nmda.or.jp/enc/fsp/">オンラインソフトウェア大賞</a> 98-99入賞
+<li><strong>1999-06-25:</strong> <a
+href="http://www.europe-inside.com/eurojapan/">Europe-Japan
+Conference on Linux and Free Software</a> にて発表
+</ul>
+
+<hr>
+<p>
+email: <a href="mailto:satoru-t@is.aist-nara.ac.jp">satoru-t@is.aist-nara.ac.jp</a><br>
+<a href="http://openlab.ring.gr.jp/namazu/">Namazuの 
+homepage へ</a>
+</p>
+<address>
+satoru-t@is.aist-nara.ac.jp
+</address>
+</body>
+</html>

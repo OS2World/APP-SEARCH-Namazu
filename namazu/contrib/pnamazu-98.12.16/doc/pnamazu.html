@@ -1,0 +1,1083 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML i18n//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-2022-JP">
+<LINK REV=MADE HREF="mailto:furukawa@dkv.yamaha.co.jp">
+<TITLE>namazu 検索クライアント perl 版 (pnamazu)</TITLE>
+</HEAD>
+<BODY LANG="ja-JP">
+<H1>namazu 検索クライント perl 版 (pnamazu) 説明書</H1>
+<P> pnamazu-98.12.16 by furukawa@dkv.yamaha.co.jp
+</P>
+
+<HR>
+
+<H2><A NAME="ReadMe1st">はじめに</A></H2>
+
+<P>
+<A HREF="http://saturn.aichi-u.ac.jp/%7Eccsatoru/Namazu/ml.html">Namazu ML</A>
+に於いて、
+「プロバイダにある自分のページに検索エンジンを載せたい」
+との声がありました。perl 版は、それに応えるべく、作られたものです。
+</P>
+
+<P>
+よって、本来は、プロバイダにて cgi として動作させることを主な目的としています。
+(しかし、村下＠池上通信機さんのご協力により、コマンドラインでも動くようになって
+きました。)
+</P>
+
+<P>
+まず最初に、<A HREF="http://saturn.aichi-u.ac.jp/%7Eccsatoru/Namazu/manual.html">正規版の namazu のマニュアル</A>を読んで下さい。
+どっちみち、インデックスを作るためには読まなければならないでしょう。
+</P>
+
+<P>
+perl 版の検索クライアントは、正規版の仕様に<EM>似せて</EM>作ってありますので、
+多くの部分で正規版のマニュアルが通用します。
+
+しかし、逆に言うと、似せてあるだけなので、細かい点では違いはあります。
+それには、perl 版独自の改良もありますが、
+<UL>
+  <LI>正規版のバージョンアップに追いついていないもの
+  <LI>あまり重要でないと考えて、放ってあるもの
+</UL>
+さらには
+<UL>
+  <LI>純粋なバグ
+</UL>
+もあるでしょう。お気づきの点は、
+<A HREF="http://saturn.aichi-u.ac.jp/%7Eccsatoru/Namazu/ml.html">Namazu ML</A>
+へどうぞ。修正されるかもしれません(「仕様」と言い張るかもしれません)。
+</P>
+
+<HR>
+<P><EM>
+98.06.17 から 98.10.01 の版には、<A HREF="#andBug">and 検索のバグ</A>
+があることが分かりました。98.10.20 以降は直っています。
+
+</EM></P>
+<HR>
+
+<H2><A NAME="Index">目次</A></H2>
+<UL>
+  <LI><A HREF="#ReadMe1st">はじめに</A>
+  <LI><A HREF="#Index">目次</A>
+  <LI><A HREF="#AboutPnamazu">perl 版について</A>
+  <LI><A HREF="#Usage_Quick">とりあえず使うには</A>
+  <LI><A HREF="#Usage">ちょっと詳しい説明</A>
+       <UL>
+         <LI><A HREF="#Files">配付ファイル一覧</A>
+         <LI><A HREF="#PerlConfig">perl 版特有の設定</A>
+         <LI><A HREF="#Usage_src">設定したら</A>
+         <LI><A HREF="#Usage_makepnmz">makepnmz.pl について</A>
+         <LI><A HREF="#Usage_zip">ディスク容量を節約したい場合</A>
+              <UL>
+                <LI><A HREF="#zip_index">インデックスを圧縮する</A>
+                <LI><A HREF="#zip_script">スクリプトを圧縮する</A>
+              </UL>
+       </UL>
+  <LI><A HREF="#command_line">コマンドラインで使う</A>
+       <UL>
+         <LI><A HREF="#cmdline_charcode">コマンドラインで使う際の文字コード</A>
+       </UL>
+  <LI><A HREF="#wakati">わかち書きについて</A>
+       <UL>
+         <LI><A HREF="#wakatipl">(おまけ)wakati.pl について</A>
+       </UL>
+  <LI><A HREF="#backward">後方/中間一致検索</A>
+  <LI><A HREF="#regexp">正規表現検索</A>
+       <UL>
+         <LI><A HREF="#wmsi">NMZ.w と NMZ.(m|s)i? について</A>
+       </UL>
+  <LI><A HREF="#phrase">フレーズ検索</A>
+  <LI><A HREF="#MultiDb">複数データベース対応について</A>
+  <LI><A HREF="#Remote">(実験仕様)リモートデータベース対応について</A>
+  <LI><A HREF="#nmztxt">(おまけ)データベース <-> テキスト双方向変換サブルーチン群について</A>
+  <LI><A HREF="#andBug">and 検索のバグについて</A>
+  <LI><A HREF="#history">履歴</A>
+  <LI><A HREF="#misc">その他</A>
+</UL>
+<HR>
+
+<H2><A NAME="AboutPnamazu">perl 版について</A></H2>
+<P>
+perl 版は
+<BLOCKQUOTE><EM>
+「遅くてもいいから、なんとか動かしたい。動かすための敷居は低くしたい」
+</EM></BLOCKQUOTE>
+
+というポリシーで作られています。よって、正規の namazu の検索クライアント
+(C 言語版) に比べて、
+
+<UL>
+  <LI>C コンパイラが使用できないプロバイダでも大丈夫
+  <LI>telnet で login して作業する必要は無い (ftp ができれば大丈夫)
+  <LI>kakasi が置いてないプロバイダ (たぶん普通は置いていない) でも大丈夫
+</UL>
+
+といった利点があります、また、ディスク容量に制限があるプロバイダを考慮し、
+
+<UL>
+  <LI>gzip や GNU zcat を積極的に利用して、容量を抑える工夫
+</UL>
+
+をしています。(当然速度は遅くなります)
+</P>
+
+<P>
+あたりまえですが、CGI が使えないプロバイダでは、やっぱり使えません。
+</P>
+
+<HR>
+
+<H2><A NAME="Usage_Quick">とりあえず使うには</A></H2>
+<P>
+基本的には、次の手順でよいはずです。
+<OL>
+  <LI>検索インデックスを作る (正規版のマニュアルを見て下さい)
+  <LI>pnamazu.cgi の 1 行目を、プロバイダの perl の位置に合わせて変更
+       する。普通は、
+       <BLOCKQUOTE>
+       <CODE>#!<VAR>/usr/bin/perl</VAR></CODE>
+       </BLOCKQUOTE>
+       とか
+       <BLOCKQUOTE>
+       <CODE>#!<VAR>/usr/local/bin/perl</VAR></CODE>
+       </BLOCKQUOTE>
+       になるはずです。利用するプロバイダから情報を得てください。
+       その際、perl のバージョンは 5 以上である必要があります。
+       (動作確認は 5.003, 5.004 にて行なっています)
+  <LI>pnamazu.cgi の名前を namazu.cgi に変更する。
+  <LI>NMZ.* および namazu.cgi をプロバイダに ftp で転送する (正規版のマニュアルを見て下さい)
+</OL>
+</P>
+
+<HR>
+<H2><A NAME="Usage">ちょっと詳しい説明</A></H2>
+とりあえず使うだけならば、<A HREF="#Usage_Quick">上の手順</A>
+でいいはずですが、インデックスやスクリプトを圧縮したい場合や、設定を変更したい場合、以下を読んでください。
+
+<H3><A NAME="Files">配付ファイル一覧</A></H3>
+<UL>
+  <LI>pnamazu.cgi
+  <LI>doc/
+  <UL>
+    <LI>pnamazu.html
+  </UL>
+  <LI>src/
+  <UL>
+    <LI>bw.pl
+    <LI>bwnmz.pl
+    <LI>cmdline.pl
+    <LI>db.pl
+    <LI>diag.cgi
+    <LI>euc.pl
+    <LI>field.pl
+    <LI>hashop.pl
+    <LI>input.pl
+    <LI>inttype.pl
+    <LI>lang.pl
+    <LI>ldnmzcnf.pl
+    <LI>listop.pl
+    <LI>makepnmz.pl
+    <LI>mb.pl
+    <LI>namazu.pl
+    <LI>operate.pl
+    <LI>output.pl
+    <LI>pconfig.pl
+    <LI>phrase.pl
+    <LI>plain.pl
+    <LI>reg.pl
+    <LI>regconv.pl
+    <LI>remote.pl
+    <LI>sb.pl
+    <LI>tmnmz.pl
+    <LI>wakati.pl
+    <LI>wktndx.pl
+    <LI>wlist.pl
+    <LI>wsearch.pl
+  </UL>
+</UL>
+
+<H3><A NAME="PerlConfig">perl 版特有の設定</A></H3>
+<P>
+namazu.conf に無い設定や、perl 版特有の設定は、src/pconfig.pl
+というファイルで行ないます。
+</P>
+
+主な設定
+<DL>
+  <DT><A NAME="PerlConfig_IntType">$IntType</A>
+  <DD><P>
+       (プロバイダのマシンではなく) 検索インデックスを作ったマシンの整数タイプ。
+       <BLOCKQUOTE>
+       (例)いわゆる普通の Windows マシンでインデックスを作った場合、
+       32bit の little endian なので 'V' を指定する
+       </BLOCKQUOTE>
+       namazu 1.1.2 以降でインデックスを作った場合、'NMZ.le' または 'NMZ.be'
+       というファイルが作られますから、それをプロバイダに転送すれば、
+       $IntType の設定は必要ありません。
+       <BLOCKQUOTE>
+       配付時の初期設定：<CODE>$IntType = '';</CODE>
+       </BLOCKQUOTE>
+       </P>
+  <DT><A NAME="PerlConfig_Zcat">$Zcat</A>
+  <DD><P>
+       ディスク節約のために、インデックスやスクリプトを圧縮しておきたい場合、
+       実行時に解凍する必要がありますから、そのためのプログラムを設定します。
+       </P>
+       <P>
+       プロバイダのマシンでの zcat の位置を指定して下さい。
+
+       たいていの場合、
+       <BLOCKQUOTE>
+       '/usr/bin/zcat'
+       </BLOCKQUOTE>
+       とか
+       <BLOCKQUOTE>
+       '/usr/local/bin/zcat'
+       </BLOCKQUOTE>
+       といった場所にあります。
+       運よく、path の通った場所に
+       あれば、単純に 'zcat' でもいい場合もあります。
+       </P>
+       <P>
+       注意すべき点として、例えば SunOS の /usr/ucb/zcat
+       は、compress にしか対応していません。GNU の zcat
+       である必要があります。
+
+       その意味では、gzip があれば、'gzip -dc'
+       の方が分かりやすいかもしれません。
+       (普通は、gzip と GNU zcat の実体は同じものです)
+       </P>
+
+       <BLOCKQUOTE>
+       配付時の初期設定：<CODE>$Zcat = '/usr/local/bin/gzip -dc';</CODE>
+       </BLOCKQUOTE>
+
+       当然ですが、圧縮するために、ローカルマシンにも gzip
+       が必要です。path の通ったところに置いて下さい。
+
+  <DT><A NAME="PerlConfig_ZcatPri">$ZcatPri</A>
+  <DD><P>
+        インデックスを zcat で解凍する場合に、サーバに負荷がかかり過ぎるのを
+        防ぐため、優先度をこの値に下げます。
+       <BLOCKQUOTE>
+       配付時の初期設定：<CODE>$ZcatPri = 10;</CODE>
+       </BLOCKQUOTE>
+       </P>
+
+  <DT><A NAME="PerlConfig_ScriptName">$ScriptName</A>
+  <DD><P>
+       スクリプト自体を圧縮して実行する場合、$0 == '-'
+       となるため、スクリプトが自分のファイル位置を知ることができなくなります。
+       その場合に設定して下さい。
+       </P>
+       <P>
+       Apache (全バージョンかどうかは知りませんが)では、環境変数
+       SCRIPT_FILENAME でスクリプトの位置が分かりますので、設定は不要です。
+       </P>
+
+       <P>
+       また、今のところ、この変数は、namazu.conf
+       の位置を知るために使用しているだけなので、$NamazuConf に
+       namazu.conf の位置を指定してあるか、または、namazu.conf
+       を使わない場合、設定する必要はありません。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定：<CODE>$ScriptName = '';</CODE>
+       </BLOCKQUOTE>
+  <DT><A NAME="PerlConfig_NamazuConf">$NamazuConf</A>
+  <DD><P>
+       namazu.conf の位置を明示したいときに設定します。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>$NamazuConf = '';</CODE>
+       </BLOCKQUOTE>
+  <DT><A NAME="PerlConfig_Renice">$ReniceTime, $RenicePri</A>
+  <DD><P>
+       検索のヒット数が多い、などの理由で、サーバに負担がかかるのを防ぐため、
+       一定時間が経過したら、setpriority で優先度を下げることができます。
+       </P>
+       <P>
+       $ReniceTime で、setpriority を実行するまでの時間、
+       $RenicePri で、setpriority で指定する優先度を指定します。
+       これらが、どちらも正の数で、かつ、CGI
+       として実行しているときだけ有効です。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>$ReniceTime = 0; $RenicePri = 10;</CODE>
+       </BLOCKQUOTE>
+  <DT><A NAME="PerlConfig_CmdLineArg">$CmdLineArg</A>
+  <DD><P>
+       正規版の namazu 検索クライアントは、v1.2 から、コマンドライン実行時の
+       検索語とディレクトリの評価順が変わりました。それに合わせて、
+       </P>
+       <P>
+       'new' にすると、'key string' [index dir] の順、
+       'old' にすると、[index dir] 'key string' の順
+       に評価されます。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>$CmdLineArg = 'new';</CODE>
+       </BLOCKQUOTE>
+
+  <DT><A NAME="PerlConfig_RemoteEnable">$RemoteEnable</A>
+  <DD><P>
+       他のマシンへ検索結果を聞きに行く機能を有効にするかどうか。1 で有効。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>$RemoteEnable = 0;</CODE>
+       </BLOCKQUOTE>
+
+  <DT><A NAME="PerlConfig_DbAlias">%DbAlias</A>
+  <DD><P>
+       database の別名リストです。
+       <BLOCKQUOTE><SAMP>
+       %DbAlias = ('foo' => 'bar');
+       </SAMP></BLOCKQUOTE>
+       と書いておくと、dbname=foo というパラメータが渡されたときに、
+       bar というデータベースを見に行くようになります。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>%DbAlias = ();</CODE>
+       </BLOCKQUOTE>
+
+  <DT><A NAME="PerlConfig_DbEnable">@DbEnable</A>
+  <DD><P>
+       有効な database 名のリストです。
+       このリストが空でない場合、リストに無い database 名は無効になります。
+       </P>
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>%DbEnable = ();</CODE>
+       </BLOCKQUOTE>
+
+  <DT><A NAME="PerlConfig_RespTextOrig">$RespTextOrig</A>
+  <DD><P>
+        応答の text に入れる検索式の初期値を設定します。
+        0 にすると、わかち書きなどの処理をした後の文字列を返します。
+        例えば、'*愛知大学*' を入力した場合、応答の text の初期値は
+        '{ *愛知 大学* }' になります。これにより、検索クライアントが、
+        入力を、どう解釈したかが分かります。
+        1 にすると、入力をそのまま返します。
+       <BLOCKQUOTE>
+       配付時の初期設定： <CODE>$RespTextOrig = 0;</CODE>
+       </BLOCKQUOTE>
+
+  <DT><A NAME="PerlConfig_SplitLink">$SplitLink</A>
+  <DD><P>
+        1 にすると、文書の存在するディレクトリにもリンクするように
+        なります。
+        ただし、この場合、&lt;A HREF=&qt;foo/bar&qt;&gt;hogehoge&lt/A&gt;
+        のうち、hogehoge は捨てられます。NMZ.f を加工している場合には、
+        注意が必要です。
+       
+</DL>
+
+<H3><A NAME="Usage_src">設定したら</A></H3>
+<P>
+src ディレクトリのファイルのうち、namazu.pl というファイルが main
+になります。これを namazu.cgi という名前に変更すれば、そのままで cgi
+として実行可能です。その際、require で呼ばれる全ファイルが必要です。
+ftp でプロバイダに転送する際には、namazu.cgi と同じディレクトリに
+それらを全部転送して下さい。
+</P>
+
+<H3><A NAME="Usage_makepnmz">makepnmz.pl について</A></H3>
+<P>
+ファイルの数が多いので、慣れないと、ftp の転送が面倒かもしれません。
+(GUI な ftp クライアントを使っている人には関係無いでしょうが)
+</P>
+<P>
+また、作者の個人的な趣味として、ソースを分割すると、開発には便利なのですが、
+使うのにはちょっと面倒なのです。
+</P>
+<P>
+そこで、makepnmz.pl というスクリプトを用意しました。
+<BLOCKQUOTE>
+<KBD>perl makepnmz.pl</KBD>
+</BLOCKQUOTE>
+とすれば、必要なファイルをマージして、pnamazu.cgi
+という一つのファイルを作ります。
+</P>
+
+<P>
+ただマージするだけでは面白くないので、makepnmz.pl にはちょっと工夫があります。
+<BLOCKQUOTE>
+<KBD>perl makepnmz.pl <VAR>[commands | PerlPath]</VAR></KBD>
+</BLOCKQUOTE>
+
+'/' で始まり、'perl' の文字列を含む引数は、プロバイダでの perl
+の位置と解釈されます。それ以外は command となります。command
+は複数指定可能で、その意味は次の通りです。
+<DL>
+  <DT><A NAME="makepnmz_cgi">cgi</A>
+  <DD>コマンドラインでしか使用しない部分はマージしない。
+       これにより、常に cgi として動作するようになります。
+  <DT><A NAME="makepnmz_strip">strip</A>
+  <DD>コメントだけの行、行頭のスペースを削除、行のマージによりサイズを小さくする。
+  <DT><A NAME="makepnmz_zcat">zcat</A>
+  <DD>gzip で圧縮する。perl スクリプトは pnamazu.gz という名前に圧縮されます。
+       実行時に解凍して perl を起動するシェルスクリプトを生成します。
+       実行するには、'pnamazu.gz' も必要になります。
+       <P>
+       シェルスクリプトは、
+       <BLOCKQUOTE>
+       <CODE>
+       #!/bin/sh<BR>
+       <VAR>zcat</VAR> pnamazu.gz | <VAR>perl</VAR> -
+       </CODE>
+       </BLOCKQUOTE>
+       となりますが、このうち、<VAR>perl</VAR> の部分には引数の PerlPath
+       (それが無ければ namazu.pl の一行目) が使われます。また、<VAR>zcat</VAR>
+       には、pconfig.pl で指定した変数 '$Zcat' が使われます。
+       </P>
+       <P>
+       必要に応じて、<A HREF="#PerlConfig_Zcat">$Zcat</A> や
+       <A HREF="#PerlConfig_ScriptName">$ScriptName</A> の設定をして下さい。
+       </P>
+  <DT><A NAME="makepnmz_nobw">nobw</A>
+  <DD><A HREF="#backward">後方/中間一致検索</A>
+       を使わない。その分、スクリプトは若干小さくなります。<BR>
+       <EM>注意：'nokt' というコマンドがあった時期がありますが、
+       「カタカナ語の中間一致検索」という仕様と共に廃止されました</EM>
+  <DT><A NAME="makepnmz_noremote">noremote</A>
+  <DD>リモート検索を使わない
+  <DT><A NAME="makepnmz_noreg">noreg</A>
+  <DD>正規表現検索を使わない
+  <DT><A NAME="makepnmz_nofield">nofield</A>
+  <DD>フィールド検索を使わない
+</DL>
+
+配付ファイルの pnamazu.cgi は
+<BLOCKQUOTE>
+perl makepmnz.pl cgi strip noremote noreg nofield /usr/local/bin/perl
+</BLOCKQUOTE> として作成したものです。
+
+<P>
+<EM>
+注意：makepnmz.pl は、スクリプトを perl の文法的に解析しているわけではなく、
+作者のプログラミングスタイルに依存しています。
+よって、スクリプトを改造してお使いになる場合には、makepnmz.pl は使わず、
+分割されたファイルのままの方が無難です。
+</EM>
+</P>
+
+<H3><A NAME="Usage_zip">ディスク容量を節約したい場合</A></H3>
+<P>
+実際問題としては、ディスク容量を節約したいのは、プロバイダのディスク容量の残りが少ない場合だと思いますが、そのような場合はコンテンツの大部分が画像等のバイナリファイル (つまり検索対象外のファイル) だとすると、この機能を使いたいケースはあまりないのかもしれません。それはともかく…
+</P>
+<P>
+もし、御利用のプロバイダで gzip や GNU zcat が使えるならば、インデックスやスクリプトを圧縮した状態で置いておき、実行時に解凍することができます。
+</P>
+<P>
+まず、pconfig.pl の<A HREF="#PerlConfig_Zcat">$Zcat</A>を設定して下さい。
+</P>
+<H4><A NAME="zip_index">インデックスを圧縮する</A></H4>
+<P>
+データベースファイルのうち、次の 5 つの拡張子のものは、圧縮ファイルを使用することができます。
+<PRE>
+    <BLOCKQUOTE>
+    非圧縮時    圧縮時
+    .h          .h.gz  または .hz
+    .ii         .ii.gz または .iiz
+    .i          .i.gz  または .iz
+    .fi         .fi.gz または .fiz
+    .f          .f.gz  または .fz
+    </BLOCKQUOTE>
+</PRE>
+<P>
+5 つ全部ではなく、一部だけを圧縮して置くことも可能です。
+圧縮ファイルが無ければ、自動的に非圧縮ファイルを読みます。
+ローカルマシンにて gzip を使って圧縮してください。
+</P>
+
+<P>
+考慮すべきことは、
+<UL>
+    <LI>小さいファイルは圧縮してもあまり嬉しくない
+    <LI>大きいファイルは、解凍に時間がかかる
+</UL>
+ということです。どのファイルを圧縮すべきか/すべきでないかは、個々のケースで違うと思います。
+</P>
+
+<P>
+また、zcat を使って解凍することは、サーバに負荷をかけることになります。
+プロバイダのサーバなど、多くの人の共有資源を使う場合には、この点も考慮
+すべきです。pnamazu では、zcat を実行する際には、自分の優先度を下げる
+うにしています。
+</P>
+
+<H4><A NAME="zip_script">スクリプトを圧縮する</A></H4>
+<P>
+makepnmz.pl の <A HREF="#makepnmz_zcat">zcat</A> コマンドを使ってスクリプトを圧縮してください。<A HREF="#makepnmz_cgi">cgi</A> コマンドや <A HREF="#makepnmz_strip">strip</A> コマンドと併用して、
+<BLOCKQUOTE>
+perl makepmnz.pl zcat cgi strip /usr/local/bin/perl
+</BLOCKQUOTE>
+などとすると、より効果的です。単純にマージしたときに比べると、1/5
+程度になるようです。
+</P>
+
+<HR>
+
+<H2><A NAME="command_line">コマンドラインで使う</A></H2>
+<P>
+perl 版はコマンドラインでも動くつもりで作られています。ただし、
+<UL>
+  <LI>配布したままの pnamazu.cgi は、makepnmz.pl の
+       <A HREF="#makepnmz_cgi">cgi</A> コマンドが使われているので、
+       そのままでは、常に cgi として動作し、コマンドラインオプションなどは
+       効きません。(検索そのものはできます)
+       pnamazu.cgi を作りなおすか、または、src ディレクトリの
+       namazu.pl をそのまま実行してください。
+  <LI>作りはしたものの、テストされていないオプションもあります。バグ報告など、
+       <A HREF="http://saturn.aichi-u.ac.jp/%7Eccsatoru/Namazu/ml.html">Namazu ML</A>にお寄せください。
+</UL>
+</P>
+<H3><A NAME="cmdline_charcode">コマンドラインで使う際の文字コード</A></H3>
+<P>
+スクリプトが自分自身で発生する文字列については、特に変換処理はしません。
+よって、スクリプトを、御自分の環境のコードに応じて、Shift_JIS または EUC-JP
+に変換しておいて下さい。
+</P>
+<P>
+一方、NMZ.* から発生する文字列については、環境変数 LANG, LC_TYPE を
+読んで、指定されたコードに変換して出力します。そのルールはいいかげんで、
+<UL>
+  <LI>LANG よりも LC_TYPE が優先される。それらの環境変数に、大文字、小文字関係なく、
+  <LI>'euc' の文字があれば、EUC-JP に変換される
+  <LI>'sj' または 'shift' の文字があれば、Shift_JIS に変換される
+</UL>
+</P>
+<HR>
+<H2><A NAME="wakati">わかち書きについて</A></H2>
+<P>
+内蔵のわかち書き処理では、検索インデックス自身を辞書代わりに利用するため、
+「文書群に存在する語群ときっかり同じ辞書を持った kakasi」
+のような出力になります。つまり、本当に kakasi を呼び出した場合に比べると、辞書が小さくなったような動作になるので、やや精度が落ちます。
+</P>
+<BLOCKQUOTE>
+<P>
+kakasi の標準の辞書に「大阪」「大学」「大阪大学」という語が有ります。
+</P>
+<P>
+しかし、もし、語群に「大阪大学」が無く、「大阪」や「大学」があった場合、
+検索インデックス (つまり内蔵わかち書き用の辞書) には「大阪」「大学」
+はあるが、「大阪大学」は無い、という状態になります。
+</P>
+<P>
+ここで、「大阪大学」を検索しようとすると、「大阪」と「大学」があれば、
+ヒットすることになります。
+</P>
+<P>
+もし正規の kakasi を呼び出していれば、「大阪大学」は、あくまでも「大阪大学」
+であり、ヒットしない、という正しい結果になります。
+</P>
+</BLOCKQUOTE>
+<P>
+ただし、これはヒットする文書が増える方向なので、実質的にはそれほど問題にはならないと思います。
+</P>
+<P>
+内蔵わかち書き処理では、分けられた語をカッコで囲むようになっています。つまり、
+「namazu ! { 愛知 大学 }」と扱われます。
+</P>
+<P>
+<EM>
+注意: 以前は、namazu.conf で WAKATI を指定すれば、それを呼び出すように
+なっていましたが、現在は、常に内蔵のわかち書きを使います。
+</EM>
+</P>
+<P>
+指定が無い場合、内蔵のわかち書き処理が実行されます。
+プロバイダなどで kakasi が使えない場合、威力を発揮するでしょう。
+</P>
+<H3><A NAME="wakatipl">(おまけ)wakati.pl について</A></H3>
+<P>
+おまけとして、わかち書きをおこなうスクリプトを添付しました。速度は遅いです。
+</P>
+<P>
+始めに、わかち書き用辞書データベースを作ります。
+<BLOCKQUOTE>
+<KBD>perl wktndx.pl <VAR>[options]</VAR> <VAR>dict</VAR></KBD>
+</BLOCKQUOTE>
+オプションは、次のものがあります。
+<DL>
+  <DT>-w <VAR>DbName</VAR>
+  <DD>データベースの名前を指定します。
+       このオプションが無いときは、'WKT' が指定されたと見なされ、
+       'WKT.d' および 'WKT.di' というファイルになります。
+       このオプションを、wakati.pl でも指定すれば、そのデータベースが使えます。
+  <DT>-h および -k
+  <DD>ひらがな (-h) やカタカナ (-k) で始まる単語もデータベースに登録します。
+       デフォルトでは、漢字で始まる単語しか登録しません。
+</DL>
+辞書は複数指定可能です。いちおう、
+<BLOCKQUOTE>
+/^よみ[a-z]?[,\s]*(\/?単語)+ 品詞情報/
+</BLOCKQUOTE>
+という形式の辞書を読めるつもりで作っています。
+</P>
+<P>
+そして、
+</P>
+<BLOCKQUOTE>
+<KBD>perl wakati.pl <VAR>filename</VAR></KBD>
+</BLOCKQUOTE>
+<P>
+とか
+</P>
+<BLOCKQUOTE>
+<KBD>perl wakati.pl &lt; <VAR>filename</VAR></KBD>
+</BLOCKQUOTE>
+<P>
+などとすれば、わかち書き出力が得られます。
+</P>
+<P>
+<EM>注意：wktndx.pl では、'NMZ.(be|le)'
+の存在をチェックして、データベースのエンディアンを決めています。
+本来、NMZ.* のエンディアンとは関係なく決めてもいいのですが、もし、将来、本体に組み込んだ場合に、
+NMZ.* に合わせていたほうが、サブルーチンの共用に都合がよいので、仮に、このようにしています。</EM>
+</P>
+
+<HR>
+<H2><A NAME="backward">後方/中間一致検索</A></H2>
+<P>
+perl 版では、後方一致検索や、中間一致検索ができるようになっています。
+</P>
+
+<P>
+まず、mknmz で検索した後、
+<BLOCKQUOTE>
+<KBD>perl bwmnz.pl <VAR>[Options] [DbName]</VAR></KBD>
+</BLOCKQUOTE>
+とします。DbName を省略すると、カレントディレクトリの NMZ.* が使われます。
+これにより、次のようなファイルが作られます。
+<DL>
+<DT>NMZ.s および NMZ.si
+<DD>1 バイト文字列用、後方/中間一致検索データベース
+<DT>NMZ.m および NMZ.mi
+<DD>2 バイト文字列用、後方/中間一致検索データベース
+</DL>
+オプションとして '-s' をつけると NMZ.s と NMZ.si だけを作り、
+'-m' をつけると NMZ.m と NMZ.mi だけを作ります。
+(以降、NMZ.s, NMZ.si, NMZ.m, NMZ.mi の 4 つを指して 'NMZ.(m|s)i?' と表記します)
+</P>
+<P>
+これで準備完了です。
+</P>
+<P>
+検索時に、次の条件を全て満たすと、後方/中間一致検索になります。
+<UL>
+  <LI>makepnmz.pl のコマンドに <A HREF="#makepnmz_nobw">nobw</A>
+       を指定していない (またはマージしていない状態である)
+  <LI>後方/中間一致検索データベースが存在し、
+  <LI>それらのタイムスタンプが NMZ.h と同じか、新しい
+  <LI>検索語として、1 バイト文字を 2 文字以上、または 2 バイト文字を指定し
+  <LI>その前に '*' をつける
+</UL>
+
+<P>
+検索語の後に '*' をつけるかどうかで、後方一致か中間一致かが決まります。
+<SAMP>'*後方一致'</SAMP> や <SAMP>'*中間一致*'</SAMP> のようになります。
+</P>
+<P>
+1 バイト文字列の検索には、2 文字以上必要です。よって、
+<SAMP>'*e*'</SAMP> や <SAMP>'*i'</SAMP> のような検索はできません。
+</P>
+<P>
+後方/中間一致検索データベースは、NMZ.h などと同様、gzip で
+<A HREF="#zip_index">圧縮</A> しておくこともできます。
+</P>
+<P>
+また、NMZ.(m|s)i? でなく、NMZ.w でも、後方/中間一致検索ができるようになっています。
+</P>
+
+<P>
+<EM>
+注意：「カタカナ語のみ中間一致検索可能」
+という仕様であった時期がありますが、
+その仕様は廃止されました。よって、NMZ.k や NMZ.ki
+というデータベースは、使いみちがなくなりました。削除してしまいましょう。</EM>
+</P>
+<H2><A NAME="regexp">正規表現検索</A></H2>
+<P>
+検索文字列を <SAMP>'/正規表現/'</SAMP> のように、'/'
+ではさむと、正規表現による検索が可能です。(NMZ.w が必要です)
+</P>
+<P>
+2 バイト文字列については、ちょっと細工をしています。perl の正規表現では、
+<SAMP>'/[ア-オ]/'</SAMP>
+とやっても、
+<SAMP>'/[\xa5\xa2-\xa5\xaa]/'</SAMP>
+と解釈されてしまうため、これを
+<SAMP>'/(\xa5[\xa2-\xaa])/'<SAMP>
+と変換するような細工をしています。従って、カッコの順番が変わってしまうため、
+\1 のような表現は、使えません。
+</P>
+<P>
+正規表現検索部分には、内蔵わかち書き処理は適用されません。
+よって、<SAMP>'/知大/'</SAMP> で「愛知」「大学」への分割はできません。
+後方/中間一致検索を使って、<SAMP>'*知大*'</SAMP> とすれば可能です。
+</P>
+<H3><A NAME="wmsi">NMZ.w と NMZ.(m|s)i? について</A></H3>
+<P>
+後方/中間一致検索のためのデータベースとして、
+NMZ.w を使う方法と、NMZ.(m|s)i? を使う方法がありますが、
+<UL>
+  <LI>後方/中間一致検索では NMZ.(m|s)i? を使った方が速く、
+  <LI>正規表現検索では NMZ.w が必要 (無いと、NMZ.i, NMZ.ii を使いますが、これはかなり遅いです)
+</UL>
+ですので、両方あった方が、よいです。
+</P>
+<HR>
+<H2><A NAME="phrase">フレーズ検索</A></H2>
+<P>
+検索語列を '{ 検索語列 }' や '" 検索語列 "' のように '{ }' や '"' で囲むと、
+フレーズ検索が可能です。この検索のためには、インデックス作成に namazu 1.2.x
+以上を使って、フレーズデータベース NMZ.p および NMZ.pi を作ることが必要です。
+もし、これらのファイルが無い場合には、単なる and 検索として処理されます。
+</P>
+<P>
+<SAMP>{ 制御 ( システム | system ) }</SAMP>
+<SAMP>{ *学部 *学科 }</SAMP>
+<SAMP>{ /(バ|ヴァ)イオリン/ 協奏曲 }</SAMP>
+といった検索もできます。
+</P>
+<P>
+もう少し詳しく説明すると、演算子が無い検索語の並びは、通常は and
+演算ですが、すぐ外のカッコが '{ }' だった場合には、phrase
+演算として扱われる、という仕様になっています。
+</P>
+<HR>
+<H2><A NAME="MultiDb">複数データベース対応について</A></H2>
+<P>
+pnamazu-98.07.30 からは、CGI として動作する際に、複数のデータベースが
+使えるようになりました。
+</P>
+<P>
+作者は、検索結果のソートには「新しい順」をよく使うのですが、
+初期の Namazu では、この機能は、ファイル名を数値ソートすることで実現されており、
+データベースにはファイルのタイムスタンプが記録されていないので、
+複数のデータベースでは、うまく働きませんでした。
+</P>
+<P>
+そこで、正規版でサポートされるまでの「つなぎ仕様」として、タイムスタンプ
+だけを記録したファイルを作成することにより、時間によるソートができる、
+というものを、作りました。
+</P>
+<P>
+データベースのあるディレクトリで
+<BLOCKQUOTE>
+<KBD>perl tmmnz.pl</KBD>
+</BLOCKQUOTE>
+を実行すると、'NMZ.t' というファイルができます。'earlier' または 'later'
+を指定した検索時に、'NMZ.t' があると、このファイルを使って時間ソートを
+行ないます。
+</P>
+<P>
+この機能は、正規版でサポートされるまでの、限定仕様のつもりでしたが、
+現在では正規版も同じ仕様を採用しています。
+</EM>
+</P>
+<HR>
+<H2><A NAME="Remote">(実験仕様)リモートデータベース対応について</A></H2>
+<P>
+データベースの名前として、http:// で始まるものを使うと、そこへ検索結果を
+聞きに行くようにしてみました。
+</P>
+<P>
+例えば、QUERY_STRING に
+<BLOCKQUOTE><CODE><SAMP>
+    dbname=hogehoge&dbname=http://www.xxx.yyy/zzz/namazu.cgi
+</SAMP></CODE></BLOCKQUOTE>
+と書いてあると、自分のところの hogehoge を探すと共に、www.xxx.yyy
+にアクセスし、その結果を併記します。その際、dbname 以外のパラメータ
+は、そのままリモートに渡します。
+</P>
+<P>
+この機能は、セキュリティ上の問題があります。もし、外部には公開していない
+(が、この cgi を動かしているマシンからは見える) 検索サーバがあり、
+その url を知られてしまった場合、その url を dbname に書かれてしまうと、
+公開していない情報が外に出てしまうことになります。
+</P>
+<P>
+よって、初期状態では、pconfig.pl の中で、<A HREF="#PerlConfig_RemoteEnable">$RemoteEnable</A> = 0;
+つまり無効としています。この変数を 1 にする際には、上の問題点をご理解下さい。
+</P>
+<P>
+リモート機能をちょっとだけ安全に使うために、pconfig.pl の中に、
+<A HREF="#PerlConfig_DbEnable">@DbEnable</A>
+および
+<A HREF="#PerlConfig_DbAlias">%DbAlias</A>
+というものを用意しました。
+</P>
+<P>
+@DbEnable を設定すると、そのリストにあるデータベース以外は無効になるので、
+任意のサーバにアクセスされることを防げます。
+また、%DbAlias を設定することで、リモートの url を隠すことができます。
+</P>
+<P>
+例として、hogehoge および、http://www.xxx.yyy/zzz/namazu.cgi
+だけが検索対象で、他のマシンへアクセスさせたくない、また、リモートの url
+を隠したい、という場合には、pconfig.pl に
+<BLOCKQUOTE><CODE><SAMP>
+    %DbAlias = ('foo' => 'http://www.xxx.yyy/zzz/namazu.cgi');<BR>
+    @DbEnable = ('hogehoge', 'foo');
+</SAMP></CODE></BLOCKQUOTE>
+とし、QUERY_STRING にて
+<BLOCKQUOTE><CODE><SAMP>
+    dbname=hogehoge&dbname=foo
+</SAMP></CODE></BLOCKQUOTE>
+としてください。
+</P>
+<EM>
+注意：この機能は、実験仕様です。
+</EM>
+<HR>
+<H2><A NAME="nmztxt">(おまけ)データベース <-> テキスト双方向変換サブルーチン群について</A></H2>
+
+<P>
+データベースはバイナリファイルなので、下手にいじると、位置が変わって、
+おかしなことになります。
+</P>
+<P>
+よって、ユーザがデータベースを加工したいと思っても、簡単にはできません。
+もしやるとしても、いちいち専用のツールを作っていると大変なので、
+<DL>
+  <DT>(1)
+  <DD>まずテキストに変換して
+  <DT>(2)
+  <DD>それを加工して
+  <DT>(3)
+  <DD>データベースを構築し直す
+</DL>
+という手順を踏むことにして、(1) と (3) が用意されていれば、(2) は、利用
+者が勝手に作ることができるようになります。
+</P>
+<P>
+そこで、データベースをテキストと双方向変換するサブルーチン群 nmztxt.pl 
+というものを作ってみました。サポートしているのは、
+<UL>
+  <LI> ファイル系データベース (NMZ.r, NMZ.f, NMZ.fi) とテキストの双方向変換
+  <LI> 単語系データベース (NMZ.h, NMZ.i, NMZ.ii) とテキストの双方向変換
+  <LI> フレーズデータベース (NMZ.p, NMZ.pi) とテキストの双方向変換
+  <LI> 加工結果のファイル数、単語数を NMZ.head* に反映
+  <LI> NMZ.t から、無効なデータのリストを取り出す
+</UL>
+などです。
+</P>
+<P>
+また、これを使ったサンプルとして、NMZ.f の要約に、Keyword を付加する、
+kwnmz.pl というものを作ってみました。
+</P>
+<P>
+本当は、データベースを読みながら処理をして、
+その場で書き出した方が速いのですが、汎用性を考えて、
+いったんテキストに落とすようになっています。
+速度と汎用性を両立できる、もう少しいい方法があれば、考えたいと思います。
+</P>
+<P>
+<EM>
+注意: これを使ってみよう、という奇特な方へ！
+</EM>
+</P>
+<P>
+<EM>
+まだ作ったばかりで、実績が十分とは言えませんし、バグがあると、
+データベースが壊れてしまう、危険な処理ですから、
+バックアップをとってから使うことをお勧めします。
+</EM>
+</P>
+
+<HR>
+<H2><A NAME="andBug">and 検索のバグについて</A></H2>
+<P>
+98.06.17 から 98.10.01 の版には、
+<BLOCKQUOTE><SAMP>foo and bar</SAMP></BLOCKQUOTE> や
+<BLOCKQUOTE><SAMP>foo & bar</SAMP></BLOCKQUOTE> の形の and 検索ができない、
+というバグがありました。
+<BLOCKQUOTE><SAMP>foo bar</SAMP></BLOCKQUOTE> という、羅列形式の and 検索や、
+他の演算子は正常に動作しています。
+</P>
+<P>
+というわけで、これらをお使いの方には、新しいものに交換することをお勧めしま
+すが、何らかの事情で、それができない場合には、
+operate.pl の中の、
+<BLOCKQUOTE><CODE>
+        if ($b eq 'and'){
+</CODE></BLOCKQUOTE>
+
+というところ (全ソース中でも、一ヶ所だけです) を
+
+<BLOCKQUOTE><CODE>
+        if ($& eq 'and'){
+</CODE></BLOCKQUOTE>
+
+にするか、またはスクリプトの先頭で
+<BLOCKQUOTE><CODE>
+        $ENV{'QUERY_STRING'} =~ s/\+(and|&)\+/\+/g;
+</CODE></BLOCKQUOTE>
+としてください。
+</P>
+<HR>
+<H2><A NAME="history">履歴</A></H2>
+<PRE>
+#       '+': 新規仕様
+#       '?': 試験的仕様
+#       '-': 仕様の削除
+#       '*': 本体以外の仕様
+#       '!': 修正
+# 98.12.16
+#   ! 一度に 2byte 文字列の正規表現検索を 2 つ以上しようとすると、
+#     2 つ目以降が見つからないバグを修正
+#   * nmztxt.pl が異様にメモリを喰うのを修正
+#   * nmztxt.pl が、NMZ.field.* を .BAK, .BAK.BAK … と増殖させてしまう
+#     不具合を、塩崎@ascii さんのパッチによって修正
+#   * kwnmz.pl で、キーワードを EUC でセーブしていたのを修正
+# 98.11.20
+#   ! and 検索ができないケースがあった
+#   * nmztxt.pl を使う際、他にも db.pl などを require しなければならなかった
+#     のを改め、nmztxt.pl だけ require すればよいようにした。
+#   * gcnmz.pl は、本家の src/ に昇格することになった。
+#   * nmztxt.pl を使ったサンプルとして、gcnmz.pl に代わり、
+#     要約にキーワードを追加するスクリプト kwnmz.pl を添付
+#   + subquery 対応
+#   + 森本＠イマジカさんのパッチをもとに、文書の存在するディレクトリ
+#     へもリンクできるようにした
+#   ! 村下＠池上通信機さんのパッチをもとに、LANGUAGE 関連の設定を
+#     v1.3.0.0 的にした
+#   + [1][2]... の前後に [prev] [next] のリンクをつけた
+# 98.10.01
+#   + field 検索に対応
+#   * データベースファイルを、テキストファイルと相互変換する
+#     サブルーチン群 nmztxt.pl を作った
+#   * nmztxt.pl を使ったサンプルとして、データベースのゴミ掃除をする
+#     スクリプト gcnmz.pl を添付 (v1.3.* 以降用)
+#   + 正規表現の変換処理を、かなりマシにした
+#   - 正規表現検索に NMZ.(m|s)i? を使うのをやめた
+#   + NMZ.w が無くても、正規表現/後方/中間一致検索ができるようになった
+#     (NMZ.i, NMZ.ii を使う -> ただし、遅い)
+#   ! 環境変数 NAMAZUCONF & NAMAZUCONFPATH を読んでいなかったのを修正
+#   + POST Method でも検索できるようにした
+#   ! 初期状態でリモートアクセスを無効にしたつもりが、なっていなかった。
+#     ($RemoteEnable という変数は用意していたが、用意しただけだった)
+#   - kakasi を呼ぶのをやめた (常に内蔵のわかち書きを使う)
+# 98.08.31
+#   + NMZ.w を使っても、後方/中間一致検索ができるようになった
+#   ? dbname=http:// とすると、他の host へ検索結果を聞きに行くようにした
+# 98.07.30
+#   + 複数の dbname に対応
+#   + タイムスタンプを記録した 'NMZ.t' というファイルがあれば、
+#     本当の時間ソートができるようにした。
+#   * そのためのデータベース作成スクリプト 'tmnmz.pl' 添付
+# 98.06.23
+#   ! 正規表現検索を同時に 2 つ以上したときの、参考ヒット数が間違って
+#     いたのを修正。
+#   ! 正規表現検索が、ちょっとだけ高速になったかも
+#   + .ja や .en といった言語指定 suffix のついたファイルを読むようにした
+#   ! コマンドラインでの引数を v1.2 以降の順序で読めるようにした。
+# 98.06.17
+#   * wakati.pl < filename ができなかったのを修正
+#   + 村下＠池上通信機さんのパッチをもとに、LANGUAGE および veryshort
+#     に対応
+#   ? 正規表現に対応した。
+#       2 バイト文字列はコンバートする
+#       NMZ.w があれば、それを使う
+#   + フレーズ検索対応
+# 98.05.14
+#   * サブルーチンを流用して、わかち書きスクリプト (wakati.pl) および、
+#     そのためのデータベース作成スクリプト (wktndx.pl) を作った
+#   ! wsearch.pl の中で unsignedcmp を使っていたが、ここでの比較は、
+#     1 バイト文字同士または 2 バイト文字同士だから、実は単純な cmp
+#     でよいのではないか、と思い、unsignedcmp を使わないようにした
+#     これで問題なければ、ちょっと速くなるかも
+# 98.05.06
+#   ! 圧縮したデータベースが読めなくなっていたのを修正
+#   - カタカナ語の中間一致検索を廃止
+#   + 1 バイト文字列の後方/中間一致検索ができるようにした
+#   * 中間一致検索用データベース作成スクリプトを統一 (bwnmz.pl)
+# 98.04.27 (proto)
+#   + 前方/中間/後方一致の展開結果を表示するようにした。
+#   ! バグ修正
+#   ? 一定時間経過したら、renice で priority を下げられるようにしてみた
+#   * NMZ.m の効率を少し上げた (mbnmz.pl)
+#   ! 細かい改良
+# 98.04.21 (proto)
+#   ? 2 バイト文字列の後方/中間一致検索ができるようにした
+#   * そのためのデータベース作成スクリプト 'mbnmz.pl' 添付
+# 98.04.17
+#   ! 検索結果が 0 件でも 1 件と表示されていたのを修正
+# 98.04.16
+#   ! 前方一致検索ができなくなっていたのを修正
+#   ! 単語分解がうまくいかないケースがあったのを修正
+#   ? ひらがな語の扱いを見直し
+#   ? カタカナ語に限り、中間一致検索ができるようにした
+#   * そのためのデータベース作成スクリプト 'ktnmz.pl' 添付
+# 98.04.09
+#   + NMZ.(be|le) に対応した。
+#   * それによって普通に使う分には設定を変更する必要は無くなったこと
+#     に伴い、配付ディレクトリ構造などを見直し
+#   ! ちょっとバグ修正
+#   * 大幅にドキュメント充実
+#   + NMZ.slog を残すようにした
+# 98.03.25
+#   + 村下＠池上通信機さんのパッチをもとに、コマンドライン
+#     から使えるようにした
+#   ? namazu.conf で指定されていれば kakasi を呼べるようにしてみた
+#   ? ソースを分割した
+#   * マージツール (makepnmz.pl) を作成
+# 98.03.16
+#   + 検索式が使えるようになった
+#   + 圧縮したデータベースが使えるようになった
+#   ! 全体的にコード見直し
+# 98.03.06
+#   + 要約表示の ON/OFF を切り換えられるようにした
+#   + NMZ.lock を見るようにした。
+#   ! 前方一致検索のバグを直した
+#   ! 大文字小文字が区別されていたのを直した
+#   ! 複合語処理は日本語のみに適用するようにした
+#   ! 整数のタイプを変数にした
+#   ! その他、細かいバグ修正
+#   + 村下＠池上通信機さんのパッチをもとに、表示件数指定
+#     および dbname 指定をできるようにした。
+# 98.03.04
+#   + 初版
+</PRE>
+<H2><A NAME="misc">その他</A></H2>
+<P>
+配付条件などは、基本的に正規版 namazu と同じとします。
+無保証ですので at your own risk にて使って下さい。
+改造などしていただくことは構いません
+というより、改造しやすいように作ろうと思っていたのですが、
+結果的には非常に読みにくいスクリプトになってしまいました。
+すみません。
+有用な改造は取り込みたいと思いますので、お知らせ下さい。
+</P>
+<P>
+作者は、プロバイダを使ったことがありません。なので、
+<UL>
+  <LI>本当に「普通は kakasi は置いていない」のか、とか
+  <LI>ファイル数が多いと転送に手間がかかる、と言えるのか、とか
+  <LI>インデックスやスクリプトを圧縮する必要はあるのか、とか
+  <LI>必要があったとして、そもそもプロバイダに gzip は置いてあるのか、とか
+  <LI>もっと根本的に、プロバイダには perl5 が置いてあるのか、とか
+</UL>
+などといったところの現実を、実はよく知りません。よって、作った機能が、
+<UL>
+  <LI>実は使えないものだったり、使う必要の無いものだったりするかもしれません。
+       そのときは、単純に作者の趣味ということで、笑ってやってください。
+  <LI>逆に、使いたい機能が無い、という可能性は大いに有ります。
+       「うちのプロバイダで使うためには、こんな仕様が欲しい」
+       という意見もあるかもしれませんね。
+</UL>
+</P>
+<P>
+多くの環境で動いて欲しい、とは思ってはいますが、
+実際に多くの環境でテストしたわけではありません。
+また、この説明書も、分かりにくかったり、
+環境によっては違う手順が必要だったりするかもしれません。
+今後は、文書の充実も、やっていきたいと思っています。
+</P>
+</BODY>
+</HTML>

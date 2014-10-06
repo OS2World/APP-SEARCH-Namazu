@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML i18n//EN">
+<html>
+<head>
+<link rev=MADE href="mailto:satoru-t@is.aist-nara.ac.jp">
+<title>Search with Lynx by using lynxcgi method</title>
+</head>
+<body lang="ja">
+<h1>Search with Lynx by using lynxcgi method</h1>
+<hr>
+
+<h2>Lynx で http を通さず検索しよう</h2>
+
+<p>
+<a href="http://lynx.browser.org/">Lynx</a> の lynxcgi の機能を使って
+http を通さずに CGI を実行して検索することができます。 Lynx をお使いの方はお試しください。
+lynxcgi の機能を使ったときは一度に表示し切れなかった分の検索結果を見ることはできません。
+これは仕様です。詳しくは <a href="manual.html">manual.html</a> の
+<a href="manual.html#SEARCH_ON_LYNXCGI">http を通さず CGI から検索する</a>の説明を参照してください。
+</p>
+
+<form method="POST" action="lynxcgi://localhost/usr/local/namazu/bin/namazu">
+<p><strong>検索式:</strong>
+<input type="TEXT" name="key" size="40">
+<input type="SUBMIT" name="submit" value="Search!"> </p>
+<p>
+<strong>表示件数:</strong>
+<select name="max">
+<option value="10">10
+<option selected value="20">20
+<option value="30">30
+<option value="50">50
+<option value="100">100
+</select>
+<strong>要約表示:</strong>
+<select name="format">
+<option selected value="long">ON
+<option value="short">OFF
+</select>
+</p>
+<input type="HIDDEN" name="whence" value="0"> </form>
+
+<h2>検索の方法</h2>
+
+<p>大文字、小文字の区別はありません。<var>foo*</var> のように末尾にアスタリスクを指定することで前方一致検索が可能です。また、単語をスペース区切りで並べて書くとアンド検索になります。日本語は KAKASI/ChaSen によって分解され、「日本語情報処理」なら 「日本語」 「情報処理」 というように 2 つの単語に分かれてアンド検索されます。日本語の単語の分解は完全ではありません。品質は辞書によって決定されます。</p>
+
+<p>全角 (2 bytes) アルファベット・記号はすべて 1 byte として処理されます。記号を含む検索も可能で <code>TCP/IP</code> というような単語の検索も可能です。ただし、記号の処理は完全ではないので <code>TCP IP</code> のように分けてアンド検索をかけた方が取りこぼしがありません (その変わり余計なファイルまでヒットしてしまう可能性もありますが)。</p>
+
+
+<p>括弧を含めたアンド検索とオア検索が可能になっており検索式に <code>&amp;  |  ( )</code> を用います。検索式はひとつづつスペース区切りで入力しなければなりません。例えば</p>
+
+<p><code>( sed | awk ) &amp; regexp</code></p>
+
+<p>といった検索をすることができます。括弧のネストもできるので、さらに複雑な検索式で検索することも可能です。検索結果はスコアの高い順に表示されます。</p>
+
+<hr>
+
+<p>
+<a href="http://openlab.ring.gr.jp/namazu/">Namazu のページへ</a>
+</p>
+</body>
+</html>

@@ -1,0 +1,394 @@
+
+                  Namazu v1.3.0.11 for OS/2 バイナリパッケージ
+
+                            Wed, 23 February  2000
+
+			清水 和佳 <kshimz@dd.iij4u.or.jp>
+		     <URL:http://www.dd.iij4u.or.jp/~kshimz/>
+
+[はじめに]
+
+    これは、高林 哲 氏が作られた全文検索システム namazu v1.3.0.11 を OS/2 
+    で使用できるように、私 (清水) が emx gcc でコンパイルしたものです。
+
+  *** 注意 ***
+
+    1. v1.2.0 から多言語対応がなされたため、設定手順が増えています。
+    2. chasen for OS/2 が利用可能となったので、そのための設定手順を増補して
+       います。
+    3. v1.3.0.2 から Robot.txt を考慮するようになったため、設定手順が増えて
+       います。
+
+    4. v1.3.0.11 は emx gcc 0.9d fix2 で作成しました。
+
+    古いバージョンを使っていた方も、必ず [利用するための前準備] の章に目を
+    通してくださいますよう、お願いします。
+
+
+[Namazu の公式サイト]
+
+    Namazu の公式サイトは、http://www.namazu.org  です。
+
+    最新の情報はここから得ることができます。Namazu のメーリングリストへの
+    参加方法も書かれています。いろいろと役に立つハズですので、ブックマーク
+    へ登録しておくといいでしょう :)
+
+
+[namazu の使い方の概略]
+
+    全文検索システム namazu v1.3.0.11 は、以下のように使います。
+
+    1. まず、検索の対象となる文書を舐め回して、インデックスを作ります。
+       インデックスを作るプログラムは、mknmz.cmd です。
+
+    2. 検索は、コマンドラインから (namazu.exe)、あるいは WWW サーバの cgi
+       機能から (namazu.cgi.exe) 、実行可能です。
+
+    3. 指定された語句を含む文書の位置 (パス または URL) を、1. で作成した
+       インデックスをもとに表示します。インデックスを前もって準備している
+       ので、対象文書の検索にかかる時間が非常に短くなっているのが特徴です。
+       また、同時に、文書の先頭部分も表示させることができます。
+
+
+[アーカイブに含まれるファイル]
+
+    namazu-1.3.0.11.tar.gz               オリジナルのアーカイブ
+
+    README.os2                          このファイル
+
+    Makefile                            実行形式ファイルの作成時に使用した
+                                        Makefile
+
+    www/cgi-bin/namazu.cgi.exe          cgi 用の namazu (*1)
+
+    usr/local/bin/namazu.exe            コマンドラインから使う namazu (*1)
+
+    usr/local/bin/mknmz.cmd             インデックス作成用 Perl スクリプト
+
+    usr/local/namazu/bin/namazu.exe     コマンドラインから使う namazu (*1)
+
+    usr/local/namazu/bin/mknmz.cmd      インデックス作成用 Perl スクリプト
+
+    usr/local/namazu/bin/wdnmz.cmd      インデックスに登録された語句を表示
+                                        する Perl スクリプト
+
+    usr/local/namazu/bin/rvnmz.cmd      アーキテクチャの異なるマシンで作った
+                                        インデックスのバイトオーダを変換する
+                                        Perl スクリプト
+
+    usr/local/namazu/bin/clnmz.cmd      インデックス中の URLを変換する Perl
+                                        スクリプト
+
+    usr/local/namazu/bin/gcnmz.cmd      インデックスのゴミ掃除のスクリプト
+
+    usr/local/namazu/bin/gtnmz.cmd      インデックスされたファイル数をチェック
+                                        するスクリプト
+
+    usr/local/namazu/bin/vfnmz.cmd      NMZ.f の中身を HTML 形式に変換して
+                                        lynx で表示するスクリプト
+
+    usr/local/namazu/bin/mailutime.cmd  メールやニュースのメッセージに含まれる
+                                        Date: の値をもとにファイルのタイムスタ
+                                        ンプを書替えるスクリプト
+
+    usr/local/namazu/lib/namazu.conf-dist    namazu.conf の雛形
+
+    usr/local/namazu/lib/namazu.head.*  namazu.head の雛形
+
+    usr/local/namazu/lib/namazu.foot.*  namazu.foot の雛形
+
+    usr/local/namazu/lib/namazu.body.*  namazu.body の雛形
+
+    usr/local/namazu/doc/*              オリジナルの説明文書
+
+    usr/local/namazu/doc/en/*           英語で書かれた説明文書
+
+    usr/local/namazu/doc/ja/*           日本語で書かれた説明文書
+
+    usr/local/namazu/contrib/*          namazu をもっと便利にするツール類
+                                        (OS/2 での動作確認は不十分です)
+
+
+   (*1) emx gcc 0.9d fix02 にて Makefile.OS2 を使ってコンパイルし、Lxlite で
+       ファイルサイズを圧縮しています。
+
+
+[namazu の実行に必要なもの]
+
+    1. 必ず導入しておく必要があるもの
+
+     ・emx gcc のランタイムモジュールである emx.dll (*1)
+     ・OS/2 用の Perl 5.004 以上(*2)
+     ・OS/2 用の日本語漢字フィルタ nkf v1.62 以上 (*3)
+
+    2. どちらかを導入しておく必要があるもの
+
+     ・kakasi (*4) または chasen (*5) の OS/2 用実行形式ファイル
+
+       このパッケージに含まれる実行ファイル群は、kakasi を利用するように設定
+       されています。chasen を使う場合は、make し直してください。
+
+    3. 日本語 man ページを全文検索の対象にする場合に必要なもの
+
+     ・OS/2 用の日本語対応 groff (*6)
+
+
+    (*1) 以下の匿名 ftp サーバからダウンロードできます。
+
+         ftp://ftp.leo.org/pub/comp/os/os2/leo/gnu/emx+gcc/
+         ftp://hobbes.nmsu.edu/pub/os2/dev/emx/v0.9d/
+
+         emx ランタイムパッケージの実体は、emxrt.zip という名前のアーカイブ
+         に入っています。これを展開すると、インストール手順の説明文書も見つ
+         かるはずです。
+
+    (*2) Perl 5.004_01 / 5.005_03 / 5.005_53+ で動作確認しています。
+         以下の匿名 ftp サーバからダウンロードできます。日本語化されていない
+         Perl でも動作します。
+
+         ftp://ftp.ring.gr.jp/pub/lang/perl/CPAN/authors/id/ILYAZ/os2/
+
+    (*3) nkf2 v1.54 / 1.62 / 1.7 で動作確認しています。nkf2.exe という名前
+         で、PATHの通ったディレクトリに置いてください。
+         OS/2 用 nkf v1.7 は、以下の URL からダウンロードできます。
+
+         http://www.vector.co.jp/soft/dl/os2/util/s0086285.html
+
+         なお、このアーカイブ、または河野さんのサイトからソースを取得して 
+         gcc でバイナリを作り直した場合、-d オプションが機能していることを
+         確認してください。-d オプションが機能しないと、検索結果の表示がお
+         かしくなります。（要約表示用のファイルの行末処理に失敗する）
+
+    (*4) 日本語の分かち書き処理 (文章を単語に分解) の目的で使います。
+         kakasi があれば、chasen がなくても namazu は動作します。
+
+         以下の URL に emx gcc 0.9d fix02 で作成した、kakasi-2.3.1 の OS/2
+         用の実行形式ファイルがあります。
+         アーカイブ内の説明文書に従ってインストールしてください。
+
+         http://www2c.airnet.ne.jp/kshimz/
+
+    (*5) 日本語の分かち書き処理 (文章を単語に分解) の目的で使います。
+         chasen があれば、kakasi がなくても namazu は動作します。
+
+         以下の URL に OS/2 用の chasen を make するための patch・説明文書
+         等があります。
+         アーカイブ内の説明文書に従って、インストールしてください。
+
+         http://www.dd.iij4u.or.jp/~kshimz/warp/index.html#chasen   または
+         http://www2c.airnet.ne.jp/kshimz/
+
+    (*6) 日本語 man ページを対象にインデックスを作成する際に必要です。
+         日本語 man ページを扱わないのであれば必要ありません。
+
+         以下の URL に、沢田石 順 氏が作成された OS/2 用の日本語 manpage の
+         パッケージがあります。パッケージ内の説明文書に従って、groff が動作
+         するように設定してください。(環境変数等の設定が必要です。)
+
+         http://www2s.biglobe.ne.jp/~vtgf3mpr/manpage/manpage.htm
+
+
+[namazu の実行のためにあった方がよいもの]
+
+    EUC, JIS コード対応のエディタ (PMMule や Future Wave Editor) が必要に
+    なります。これらも用意しておいてください。
+
+    ソースや設定ファイル類を修正するために使いますが、最悪の場合は nkf2 で
+    sjis に変換してから e エディタで修正し、再度 nkf2 で元の日本語コードに
+    戻す、という方法もあります。まぁ、FWE あたりを使った方が手間がかからな
+    くていいでしょう。
+
+
+[同梱の実行ファイルの作成方法]
+
+    同梱の Makefile.OS2 を使って make したものを、Lxlite v1.2.1 で圧縮
+    しました。
+
+
+[実行ファイルの作成方法]
+
+    ご自分でコンパイルしたい方のために説明します。
+    興味のない方は読み飛ばしてください。
+
+    make 時に gnufutil gnututil sed pdksh 等を利用するので、開発環境を一式
+    導入しておいてください。
+
+    1. namazu-1.3.0.11.tar.gz を展開します。
+
+    2. Makefile.OS2 を namazu-1.3.0.11/src へ Makefile という名前でコピーし、
+       Makefile をエディタで修正します。
+
+       以下の点だけ修正すれば良いと思います。
+
+       ・インストール先ディレクトリを環境に合わせる (ドライブレターも有効)
+         （BASEDIR と CGIDIR）
+
+       ・日本語の分かち書き処理に使うツールを指定 (デフォルトは kakasi)
+         （WAKATI）
+
+       ・CGI で表示させるメールアドレスを指定
+         （OPT_ADMIN_EMAIL）
+
+       ・Robot.txt のための設定
+         （OPT_HTDOCUMENT_ROOT と OPT_HTDOCUMENT_ROOT_URL_PREFIX と
+           OPT_ROBOTS_EXCLUDE_URLS）
+
+
+    3. make します。
+
+         make clean
+         make all
+         make install
+         make install_cgi
+
+       の順にコマンドを流します。
+
+    4. namazu.exe namazu.cgi.exe mknmz.cmd wdnmz.cmd rvnmz.cmd clnmz.cmd
+       gcnmz.cmd vfnmz.cmd mailutime.cmd の 9 つのファイルが作成されます。
+       これらが実行ファイルです。
+
+
+[利用するための前準備]
+
+    1. 実行ファイルを所定の位置に置く
+
+       namazu.cgi.exe は、お使いの httpd (WWW サーバ) プログラムが実行可能
+       な cgi プログラムを格納してあるディレクトリに置いてください。
+       (IBM の ICS / ICSS の場合、x:\www\cgi-bin が既定値です。)
+
+       namazu.exe mknmz.cmd wdnmz.cmd rvnmz.cmd clnmz.cmd gcnmz.cmd vfnmz.cmd
+       mailutime.cmd は、コマンドラインから使うプログラムなので、PATH の通った
+       ディレクトリに置くか、あるいは実行時にその位置をフルパスで指定するよう
+       にしてください。
+
+    2. 設定ファイル namazu.conf を置くディレクトリを決める
+
+       アーカイブに含まれる実行ファイルを使われる場合は、適当なディレクト
+       リでいいです。通常は /usr/local/lib に置きます。namazu.conf の位置
+       を、4. で説明する環境変数へ設定する必要があります。
+
+     * ご自分で実行ファイルを作成された場合は Makefile の LIBDIR に該当す
+       るディレクトリでいいです。LIBDIR に該当するディレクトリ以外に置いた
+       場合は、4. で説明する環境変数へ namazu.conf の位置を設定する必要が
+       あります。
+
+    3. 設定ファイル namazu.conf を作成する
+
+       namazu.conf-dist を、2. で決定した場所へ namazu.conf という名前で
+       コピーします。ファイル自身に説明が書かれているので、それに従って内
+       容を修正してください。先頭に # がある行はコメント扱いになります。
+
+     < ! 注意 ! >
+
+       1.2.0 以前の namazu.conf から、LANG item の書式が変更されています。
+       日本語処理を行う場合、以前は LANG の値は JAPANESE でしたが、今後は
+       ja となります。
+
+    4. 環境変数を設定する
+
+       環境変数 NAMAZUCONFPATH または NAMAZUCONF へ、namazu.conf の位置を
+       設定します。
+
+       例) SET NAMAZUCONFPATH=d:/usr/local/lib/namazu.conf
+
+     * ご自分で実行ファイルを作成された場合で、Makefile の LIBDIR に該当す
+       るディレクトリに namazu.conf を置いた場合には、この設定は不要です。
+
+    5. html ファイルの雛形を用意する (namazu.cgi.exe を利用する場合のみ)
+
+       namazu.head.*  namazu.foot.*  namazu.body.*  namazu.msg.* (* は en
+       または ja) を、mknmz.cmd の LIBDIR に該当するディレクトリに置きます。
+       mknmz.cmd の LIBDIR の初期値は /usr/local/namazu/lib ですが、これは
+       変更可能です (方法は後述) 。
+
+       ご自分で実行ファイルを作成された場合で、Makefile を修正されている
+       ならば、修正後の LIBDIR に該当するディレクトリに置いてください。
+
+    6. mknmz.cmd の修正 (このアーカイブに含まれるものを使う場合)
+
+       この修正内容は、mknmz.cmd の実行時に引数等で変更することも可能なので
+       perl の書式がよくわからない場合には、修正しないほうが無難でしょう。
+
+       なお、ご自分で実行ファイルを作成された場合で、Makefile でこれらに該当
+       する部分を修正されていれば、以下の手順は不要です。
+
+       mknmz.cmd は EUC で書かれているので、EUC に対応したエディタを使用し
+       使用環境に合わせて修正してください。対象は以下の5行だけです。
+
+       ・138行目:  my $WAKATI  = $KAKASI;
+
+          デフォルトの日本語処理ツールを指定します。指定可能な文字列は、
+
+          $KAKASI         kakasi のわかち書き出力を使う
+          $CHASEN         chasen の単純わかち書き出力を使う
+          $CHASEN_MORPH   chasen の品詞情報出力を使い、名詞のみを対象とする
+
+          のいずれかです。
+
+       ・139行目:  my $MorphOpt = 1 if "KAKASI" eq "CHASEN_MORPH";
+
+          前項 (138行目) を my "$WAKATI  = $CHASEN_MORPH;" と書替えた場合、
+          この行を
+
+           my $MorphOpt = 1;
+
+          とします。
+
+       ・190行目:  my $LIBDIR = "d:/usr/local/namazu/lib";
+
+          前述の、html ファイルの雛形を置いたディレクトリを指定します。
+
+       ・191行目:  my $LANGUAGE = "ja";
+
+          言語を指定します。日本語処理を行う場合は ja のままです。ここを en
+          とすると日本語処理は行われません。この場合、nkf・kakasi・chasen は
+          不要です。
+
+       ・193行目:  my $ADMIN  = 'webmaster@foobar.jp';
+
+          出力される html 文書に埋め込む、メールアドレスを指定します。
+
+
+    7. [namazu の実行に必要なもの] に列挙されたものを実行可能な状態にする
+
+
+[利用法]
+
+    [namazu の使い方の概略] で説明した通りです。
+
+    まず、mknmz.cmd を使ってインデックスを作ります。それから、namazu.exe
+    (コマンドラインから) または namazu.cgi.exe (cgi から) で、語句の検索を
+    行います。
+
+    それぞれのコマンドの使い方やオプションは、ほぼ UNIX 版と同じです。
+    ただし、OS/2 版では、ディレクトリの区切り文字として、 \ と / の両方が
+    使えます。
+
+    また、usr/local/namazu/doc/ および usr/local/namazu/doc/ja/ 以下にある
+    文書を参照してください。たいていのことはこれで判るハズです。
+
+    cgi 機能 (namazu.cgi.exe) は、ICSS v4.2.1.3 (日本語版) と v4.2.1.7 (英
+    語版) で動作することを確認しています。インデックスを作成してから、ブラ
+    ウザから
+
+       http://your.icss.host.name/cgi-bin/namazu.cgi
+
+    などと呼び出してみてください。
+
+
+[vfnmz.cmd について]
+
+    vfnmz.cmd は、NMZ.f の中身を HTML 形式に変換し、lynx(テキストモードの Web
+    ブラウザ)を呼び出して表示するツールです。スクリプトの中で lynx への path
+    を記述して使ってください。
+
+    OS/2版 lynx 用に清水がカスタマイズした部分がありますので、動作がおかしい
+    ようでしたら、清水までご連絡ください。
+
+
+[その他]
+
+    オリジナルが GNU Public Licence に即して配布されているので、これに
+    従います。
+
+以上.

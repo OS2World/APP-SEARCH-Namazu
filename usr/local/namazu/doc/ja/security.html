@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"
+        "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=ISO-2022-JP">
+<link rev=MADE href="mailto:satoru-t@is.aist-nara.ac.jp">
+<title>Namazu: Security Considerations</title>
+</head>
+<body lang="ja">
+<h1>Namazuのセキュリティに関する考察</h1>
+<p>Last Modified: 1999-01-22</p>
+<hr>
+
+<h2>基本方針</h2>
+
+<p>
+おそらく安全とは思いますが、確実とは言えません。 Namazu は完全に無
+保証です。すべてあなたの責任のもとに運用してください。ただし、セキュ
+リティの問題にはできる限り対応するつもりです。まずい点を見つけたら
+こっそり<a href="mailto:satoru-t@is.aist-nara.ac.jp">連絡</a>してください。
+</p>
+
+<h2>考察</h2>
+
+<ul>
+<li>一秒間に 1,000回アクセスしてくるような DoS には無効です。良識
+に期待します。
+<li>HTTP Server を root 権限で動かすのはやめましょう (当然だけど)
+<li>namazu.cgi を setuid するのもやめましょう (必要ないし)
+<li>namazu.cgi は system(3) を使っていません
+<li>v1.2.0.2以降の namazu.cgi は外部コマンド (kakasi/chasen) を呼
+    び出さなくなりました (fork, execを行なわない)
+<li>NMZ.slog への書き出しはロックを行なっていません<br>
+    (flock(2) でやればいいんだけど、 Win32 などでも動くのかな?)
+<li>CGIでは検索結果の最大同時出力数に制限をかけている (ディフォールト 100件)
+<li>同時に検索できるインデックスの数に制限をかけている (ディフォー
+ルト 64個)
+<li>検索は遅くても数秒程度で終わる (正規表現が一番遅い)
+<li>無限ループは起こらないはず (100%とは言えません)
+<li>検索式の入力 ('&lt;' や '&gt;' といった記号) によって HTML の
+出力を壊すことはできないはず
+<li>検索中に接続を切られるとどうなるの?<br>
+    → Apache ではその瞬間に kill されるようです
+<li>できるだけ新しいものを使ってください。 v1.3.0.1 以降がお勧めで
+す
+<li>バッファが溢れる可能性は否定できません (気をつけてはいますが)
+</ul>
+
+
+<h2>謝辞</h2>
+
+<p>
+この文書の必要性を気づかせてくれた<a
+href="mailto:yasuhi-a@is.aist-nara.ac.jp">あらきやすひろ</a>さんに
+感謝します。
+</p>
+
+<h2>文責</h2>
+
+<ul>
+<li><strong>氏名:</strong> 高林 哲 Satoru Takabayashi
+<li><strong>email:</strong> <a href="mailto:satoru-t@is.aist-nara.ac.jp">satoru-t@is.aist-nara.ac.jp</a>
+</ul>
+
+
+<hr>
+
+<p>
+email: <a href="mailto:satoru-t@is.aist-nara.ac.jp">satoru-t@is.aist-nara.ac.jp</a><br>
+<a href="http://openlab.ring.gr.jp/namazu/">Namazuの 
+homepage へ</a>
+
+</p>
+<address>
+satoru-t@is.aist-nara.ac.jp
+</address>
+</body>
+</html>

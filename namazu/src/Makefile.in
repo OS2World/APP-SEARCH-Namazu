@@ -1,0 +1,343 @@
+
+#################################################################
+## Makefile for Namazu
+## original of this file was made by Mr. Fumiyasu SATO. Thanks.
+
+##################################################################
+## System
+## select your system (UNIX or WIN32).
+
+SYSTEM		= UNIX
+
+##################################################################
+## Language
+## (ja or en).
+
+LANGUAGE	= @LANGUAGE@
+
+
+##################################################################
+## Directories
+
+BASEDIR		= @prefix@
+CGIDIR		= @CGIDIR@
+NAMAZUDIR	= $(BASEDIR)/namazu
+BINDIR_SYS	= $(BASEDIR)/bin  # install 'namazu' 'mknmz' command.
+BINDIR		= $(NAMAZUDIR)/bin
+INDEXDIR	= $(NAMAZUDIR)/index
+DOCDIR		= $(NAMAZUDIR)/doc
+LIBDIR		= $(NAMAZUDIR)/lib
+CONTRIBDIR	= $(NAMAZUDIR)/contrib
+
+##################################################################
+## Pathname of namazu.conf
+
+OPT_NAMAZU_CONF		= $(LIBDIR)/namazu.conf
+
+##################################################################
+## Programs' pathname
+## if you intend to use Namazu with Win32, you should describe
+## path by using \\\\ string for path separator.
+
+OPT_PATH_PERL		= @PERL@
+OPT_PATH_NKF		= @NKF@
+OPT_PATH_KAKASI		= @KAKASI@
+OPT_PATH_CHASEN		= @CHASEN@
+
+## Example for Win32
+#OPT_PATH_NKF		= c:\\\\usr\\\\local\\\\bin\\\\nkf32
+#OPT_PATH_KAKASI		= c:\\\\usr\\\\local\\\\bin\\\\kakasi
+
+##################################################################
+## Administrator's email address
+
+OPT_ADMIN_EMAIL		= @ADMIN@
+
+##################################################################
+## CGI-BIN directory
+## unimportant
+
+OPT_URL_CGIBIN	= /cgi-bin
+
+##################################################################
+## Pathname of Helper Programs
+##  * OPT_HELPER_ZCAT  :  program that expand compressed file
+##  * OPT_HELPER_MAN   :  program that format man file
+
+OPT_HELPER_ZCAT		= @ZCAT@
+OPT_HELPER_MAN		= @GROFF@ -man -Tnippon
+
+##################################################################
+## Scoring method
+##   * SIMPLE :  score is simply calculated by term frequency
+##   * TFIDF  :  score is calculated by tfidf method
+##     (It's meaningful when query contains two or over keywords)
+
+SCORING		= TFIDF
+
+##################################################################
+## Target for Make
+##   * mknmz       :  Indexer
+##   * wdnmz       :  Program to print registered words
+##   * rvnmz       :  Program to reverse the byte order
+##   * clnmz       :  Program to convert URL in NMZ.f
+##   * vfnmz       :  Program to view NMZ.f as HTML with lynx
+##   * gcnmz       :  Program to collect garbage in NMZ.*
+##   * gtnmz       :  Program to check the number of total indexed files
+##   * mailutime   :  Program to modify file time stamp
+##   * documents   :  same as left description :-)
+##   * namazu.cgi  :  CGI     executable  (copy of namazu)
+##   * namazu      :  UNIX    executable  
+##   * namazu.exe  :  Win32   executable  (copy of namazu)
+
+TARGET		= mknmz wdnmz rvnmz clnmz vfnmz mailutime gcnmz gtnmz\
+		  namazu namazu.cgi
+
+##################################################################
+## Target Files
+## target file for indexing (case insensitive)
+## ("_default" is a file httpdown would generate.)
+## do *not* use '$' and '^' regular expression meta charactors.
+## that will be automatically appended by mknmz.pl.
+##
+## *CAUTION*: '\' -> '\\', '$' -> '$$'
+
+OPT_TARGET_FILE	= .*\\.html?|.*\\.txt|.*_default
+
+##################################################################
+## Deny Files
+## this regular expression describes the names of the files which
+## you do *not* want to index (case insensitive). this setting is
+## effective when mknmz runs with -a option.
+## do *not* use '$' and '^' regular expression meta charactor.
+## that will be automatically appended by mknmz.pl.
+##
+## *CAUTION*: '\' -> '\\', '$' -> '$$'
+
+OPT_DENY_FILE	= .*\\.gif|.*\\.(jpg|jpeg)|.*\\.tar\\.gz|core|.*\\.bak|.*~|\\..*|\\x23.*|NMZ\\..*
+
+##################################################################
+## Directory Index
+## name of the file or files which can be abbreviated.
+## (specify by regular expression)
+## e.g. index.html|index.htm|Default.html
+## it's useful to use Namazu as WWW search engine.
+## ("_default" would be made by httpdown)
+
+OPT_DEFAULT_FILE		= _default
+
+##################################################################
+## On Memory Max
+## max size of memory allocated by index process.
+## if you have much memory machine, you can increase this value
+## and indexing speed will improve.
+
+OPT_ON_MEMORY_MAX	= 5000000
+
+##################################################################
+## File Size Limitation
+## the file larger than this value may not allowed to be indexed.
+
+OPT_FILE_SIZE_LIMIT	= 600000
+
+##################################################################
+## Robots.txt
+OPT_HTDOCUMENT_ROOT	= /usr/local/apache/share/htdocs
+OPT_HTDOCUMENT_ROOT_URL_PREFIX	= http://www.foo.domain.jp/
+OPT_ROBOTS_EXCLUDE_URLS	= ''
+
+##################################################################
+## Japanese Processor
+##   * KAKASI       :  use KAKASI
+##   * CHASEN       :  use ChaSen
+##   * CHASEN_MORPH :  use ChaSen with morphological processing
+
+OPT_WAKATI_DEFAULT = @WAKATI_DEFAULT@
+
+##################################################################
+## Defines
+##   * -DNOCONF        : no use namazu.conf
+
+DEFINES	= -DINDEXDIR=\"$(INDEXDIR)\" -DSCORING=$(SCORING) \
+	-D$(SYSTEM) -DOPT_NAMAZU_CONF=\"$(OPT_NAMAZU_CONF)\" \
+	-DLANGUAGE=\"$(LANGUAGE)\" -DMSIE4MACFIX
+
+##################################################################
+## General Set-up
+
+CC		= @CC@
+DEFS		= @DEFS@
+AR		= ar cq
+DEPEND		= makedepend
+RANLIB		= ranlib
+RM		= rm -f
+ARCDIR		= ../ARC
+
+##################################################################
+## Flags
+## optimization option and etc.
+
+CFLAGS		= -O2 $(DEFINES) $(DEFS)  -Wall $(INCLUDES)
+LDFLAGS		= -lm
+EXTRA_CFLAGS	=
+EXTRA_LDFLAGS	=
+INCLUDES	=
+
+##################################################################
+## Object Files
+
+SRCS	=	namazu.c codeconv.c messages.c parser.c cgi.c \
+		wakati.c conf.c hlist.c output.c search.c \
+		values.c form.c re_match.c regex.c util.c seed.c
+
+OBJS	=	${SRCS:.c=.o}
+
+##################################################################
+
+.c.o:
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $*.c
+
+all:	$(TARGET)
+
+mknmz: mknmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    -e 's!%OPT_PATH_KAKASI%!$(OPT_PATH_KAKASI)!g' \
+	    -e 's!%OPT_PATH_CHASEN%!$(OPT_PATH_CHASEN)!g' \
+	    -e 's!%OPT_HELPER_ZCAT%!$(OPT_HELPER_ZCAT)!g' \
+	    -e 's!%OPT_HELPER_MAN%!$(OPT_HELPER_MAN)!g' \
+	    -e 's!%OPT_WAKATI_DEFAULT%!$(OPT_WAKATI_DEFAULT)!g' \
+	    -e 's!%OPT_ADMIN_EMAIL%!$(OPT_ADMIN_EMAIL)!g' \
+	    -e 's!%OPT_ADMIN_NAME%!$(OPT_ADMIN_NAME)!g' \
+	    -e 's!%OPT_URL_CGIBIN%!$(OPT_URL_CGIBIN)!g' \
+	    -e 's!%OPT_TARGET_FILE%!$(OPT_TARGET_FILE)!g' \
+	    -e 's!%OPT_DENY_FILE%!$(OPT_DENY_FILE)!g' \
+	    -e 's!%OPT_DEFAULT_FILE%!$(OPT_DEFAULT_FILE)!g' \
+	    -e 's!%OPT_ON_MEMORY_MAX%!$(OPT_ON_MEMORY_MAX)!g' \
+	    -e 's!%OPT_FILE_SIZE_LIMIT%!$(OPT_FILE_SIZE_LIMIT)!g' \
+	    -e 's!%OPT_LIBDIR%!$(LIBDIR)!g' \
+	    -e 's!%OPT_LANGUAGE%!$(LANGUAGE)!g' \
+	    -e 's!%OPT_HTDOCUMENT_ROOT%!$(OPT_HTDOCUMENT_ROOT)!g' \
+	    -e 's!%OPT_HTDOCUMENT_ROOT_URL_PREFIX%!$(OPT_HTDOCUMENT_ROOT_URL_PREFIX)!g' \
+	    -e 's!%OPT_ROBOTS_EXCLUDE_URLS%!$(OPT_ROBOTS_EXCLUDE_URLS)!g' \
+	    mknmz.pl > $@
+	chmod +x $@
+
+wdnmz: wdnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+            -e 's!%OPT_LANGUAGE%!$(LANGUAGE)!g' \
+	    wdnmz.pl > $@
+	chmod +x $@
+
+vfnmz: vfnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    vfnmz.pl > $@
+	chmod +x $@
+
+gcnmz: gcnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    gcnmz.pl > $@
+	chmod +x $@
+
+gtnmz: gtnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    gtnmz.pl > $@
+	chmod +x $@
+
+mailutime: mailutime.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    mailutime.pl > $@
+	chmod +x $@
+
+clnmz: clnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    clnmz.pl > $@
+	chmod +x $@
+
+rvnmz: rvnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    rvnmz.pl > $@
+	chmod +x $@
+
+namazu: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)-o $@
+
+namazu.cgi: namazu
+	cp namazu namazu.cgi
+
+namazu.exe: namazu
+	cp namazu namazu.exe
+
+install_cgi: all
+	if [ ! -d $(CGIDIR) ]; then \
+	    mkdir -p $(CGIDIR); \
+	fi
+	cp namazu.cgi $(CGIDIR)
+
+install: all
+	if [ ! -d $(BINDIR) ]; then \
+	    mkdir -p $(BINDIR); \
+	fi
+	if [ ! -d $(INDEXDIR) ]; then \
+	    mkdir -p $(INDEXDIR); \
+	fi
+	if [ ! -d "$(DOCDIR)/ja" ]; then \
+	    mkdir -p "$(DOCDIR)/ja"; \
+	fi
+	if [ ! -d "$(DOCDIR)/en" ]; then \
+	    mkdir -p "$(DOCDIR)/en"; \
+	fi
+	if [ ! -d $(LIBDIR) ]; then \
+	    mkdir -p $(LIBDIR); \
+	fi
+	if [ ! -d $(CONTRIBDIR) ]; then \
+	    mkdir -p $(CONTRIBDIR); \
+	fi
+	if [ ! -d $(BINDIR_SYS) ]; then \
+	    mkdir -p $(BINDIR_SYS); \
+	fi
+	cp mknmz wdnmz rvnmz clnmz namazu vfnmz mailutime gcnmz gtnmz $(BINDIR)
+	cp ../COPYING ../ToDo ../ChangeLog $(DOCDIR)
+	cp ../README.ja ../doc/ja/* "$(DOCDIR)/ja"
+	cp ../README.en ../doc/en/* "$(DOCDIR)/en"
+	cp ../lib/* $(LIBDIR)
+	cp ../contrib/* $(CONTRIBDIR)
+	cp namazu mknmz $(BINDIR_SYS)
+
+clean:
+	$(RM) $(TARGET) *.o config.cache config.log config.status
+
+cleanall: clean
+	#$(DEPEND) -- --
+	$(RM) Makefile.bak
+
+depend:
+#	$(DEPEND) -- $(CFLAGS) -- $(SRCS)
+
+tar:
+	$(MAKE) cleanall
+	(ARCHIVE=`pwd|sed 's@[^/]*/@@g'`; \
+	    ( \
+		cd ..; \
+		tar cf - $${ARCHIVE}/* | \
+		gzip -c \
+	    ) > ${ARCDIR}/$${ARCHIVE}.tar.gz \
+	)
+

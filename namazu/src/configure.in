@@ -1,0 +1,157 @@
+#
+# configure for Namazu
+# 
+# Created  by Satoru Takabayashi <satoru@isoternet.org> [1998/10/09]
+# Modified by SATOH Fumiyasu <fumiya@cij.co.jp> [1998/12/05]
+# Modified by Satoru Takabayashi <satoru@isoternet.org> [1998/12/06]
+#
+
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(cgi.c)
+
+# Do you wish?
+#PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:$PATH
+
+# This option requires config.guess, config.sub and install-sh
+#AC_CANONICAL_SYSTEM
+
+dnl Checks for programs.
+AC_PROG_CC
+
+if test -n "$GCC"; then
+    CFLAGS="$CFLAGS -Wall"
+fi
+
+dnl Checks for libraries.
+dnl Replace `main' with a function in -lm:
+AC_CHECK_LIB(m, main)
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+
+dnl Checks for library functions.
+AC_FUNC_ALLOCA
+AC_FUNC_MEMCMP
+AC_CHECK_FUNCS(re_comp memmove)
+
+dnl CGI directory
+CGIDIR=/cgi-bin
+AC_SUBST(CGIDIR)
+AC_ARG_WITH(
+        cgi_dir,
+	[  --with-cgi-dir=DIR      set CGI directory [/usr/local/etc/httpd/cgi-bin]],
+	CGIDIR=$with_cgi_dir,
+)
+
+ADMIN=webmaster@foobar.jp
+AC_ARG_WITH(
+	admin,
+	[  --with-admin=EMAIL      set webmaster's email address [webmaster@foobar.jp]],
+	echo "webmaster's email address is set to $with_admin"
+	ADMIN=$with_admin,
+)
+AC_SUBST(ADMIN)
+
+dnl Checks for external commands
+
+AC_ARG_WITH(
+	perl5,
+	[  --with-perl5=PATH       set perl ver.5 interpreter location [search path]],
+	echo using $with_perl5 for perl5
+	PERL=$with_perl5,
+	[AC_PATH_PROGS(PERL, perl5 perl, not_found)]
+)
+if test "$PERL" = "not_found" || $PERL -e 'exit ($] >= 5)'; then
+    AC_MSG_ERROR(perl(ver.5) interpreter required)
+fi
+
+AC_ARG_WITH(
+	japanese,
+	[  --without-japanese      don't treat Japanese code],
+	USE_JAPANESE=$withval,
+	USE_JAPANESE=yes
+)
+
+# --without-japanese
+if test "$USE_JAPANESE" = "no"; then
+    LANGUAGE=en
+    AC_SUBST(LANGUAGE)
+    WAKATI_DEFAULT=NONE
+    AC_SUBST(WAKATI_DEFAULT)
+else
+    LANGUAGE=ja
+    AC_SUBST(LANGUAGE)
+    AC_ARG_WITH(
+	    lang,
+	    [  --with-lang=language    set default LANGUAGE code (ja or en) [ja]],
+	    LANGUAGE=$with_lang,
+    )
+
+    AC_ARG_WITH(
+	    nkf,
+	    [  --with-nkf=PATH         set nkf command location [search path]],
+	    echo using $with_nkf for nkf
+	    NKF=$with_nkf,
+	    [AC_PATH_PROG(NKF,nkf, not_found)]
+    )
+    if test "$NKF" = "not_found"; then
+	AC_MSG_ERROR(NKF (network kanji filter) not found to treat Japanese code)
+    fi
+
+    AC_ARG_WITH(
+	    kakasi,
+	    [  --with-kakasi=PATH      set kakasi command location [search path]],
+	    echo using $with_kakasi for kakasi
+	    KAKASI=$with_kakasi,
+	    [AC_PATH_PROG(KAKASI,kakasi, not_found)]
+    )
+    AC_ARG_WITH(
+	    chasen,
+	    [  --with-chasen=PATH      set chasen command location [search path]],
+	    echo using $with_chasen for chasen
+	    CHASEN=$with_chasen,
+	    [AC_PATH_PROG(CHASEN,chasen, not_found)]
+    )
+    if test "$KAKASI" = "not_found" -a "$CHASEN" = "not_found"; then
+	AC_MSG_ERROR(KAKASI or ChaSen required to treat Japanese code)
+    fi
+
+    WAKATI_DEFAULT=
+    if test "$KAKASI" != "not_found"; then
+	WAKATI_DEFAULT=KAKASI
+    fi
+    if test "$CHASEN" != "not_found"; then
+	WAKATI_DEFAULT=CHASEN
+    fi
+    AC_SUBST(WAKATI_DEFAULT)
+fi
+
+AC_PATH_PROG(ZCAT, zcat, not_found)
+if test "$ZCAT" = "not_found"; then
+    AC_MSG_WARN(zcat not found)
+fi
+AC_PATH_PROGS(GROFF, jgroff groff nroff, not_found)
+if test "$GROFF" = "not_found"; then
+    AC_MSG_WARN(jgroff(, groff and nroff) not found)
+else
+    # nroff
+    GROFF_OPT=
+    # groff
+    if $GROFF -man -Tascii </dev/null 2>/dev/null; then
+	GROFF_OPT=-Tascii
+    fi
+    # jgroff
+    if $GROFF -man -Tnippon </dev/null 2>/dev/null; then
+	GROFF_OPT=-Tnippon
+    fi
+    AC_SUBST(GROFF_OPT)
+fi
+
+AC_OUTPUT(Makefile)
+

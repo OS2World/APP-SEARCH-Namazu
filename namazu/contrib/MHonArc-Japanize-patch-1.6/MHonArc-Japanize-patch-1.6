@@ -1,0 +1,401 @@
+diff -crNBb MHonArc2.3.3/00README.jp MHonArc2.3.3.jp/00README.jp
+*** MHonArc2.3.3/00README.jp	Thu Jan  1 09:00:00 1970
+--- MHonArc2.3.3.jp/00README.jp	Wed Jun  2 15:59:24 1999
+***************
+*** 0 ****
+--- 1,99 ----
++         MHonArc Japanization Patch
++ 
++ [What is this patch ?]
++ 
++ MHonArc-2.x は、メール本文については元のままでも日本語に対応している
++ うえ、MIMEのヘッダ拡張にも対応していますが、ヘッダがJISで書かれている
++ 場合は文字化けが発生します。このパッチは、
++   ・ヘッダの日本語部分が破壊されることなくhtml化されるようにする
++   ・multipartで添付されたファイルのmedia-type認識度を少し改善する
++ ための物です。
++ なお、MHonArcの今後のリリースでは、パッチが無くても十分なレベルの日本
++ 語対応がなされる予定です。その時点で本パッチの存在意義はなくなります
++ ので、楽しみに待つことにしましょう。:-)
++ 
++ [Description]
++ 
++ 日本語(ISO-2022-JP)対応の作業は、m2h_text_plain'jp2022()を参考に、眞柄
++ が解析/改造を行ないました。iso2022jp.pl, Japanize.mrcの一部では、市川至
++ さん(ichikawa@lm.fujitsu.co.jp)の書かれたコードを参考にしました。
++ 改造に際しては、オリジナルのコード変更が最小限で済むように、対応可能な
++ 部分はリソースファイルに記述するように心がけました。
++ MHonArcの日本語化については、最初にnkfを通してEUC化するという方法も知
++ られていますが、本パッチはオリジナルの環境だけで動作します。
++ 
++ media-type認識度の向上は、連想配列%CTExtに要素を追加する事と、MIMEArgs
++ の追加によって行なっています。MHonArc-2.3.0から、m2h_external'filter()
++ にusenameextというオプションが追加されたため、この改造の意義は殆んど無
++ くなりました。ただし、usenameextはセキュリティを低下させる可能性があると
++ MHonArcの作者は指摘しています。
++ 
++ 以前はmailto化け対策へのパッチも用意していましたが、iso-2022-jp以外に
++ 対応できない、mailtoへのリンクは有害なメール発信を助長する、との判断から
++ 廃止しました。これに伴い、日本語化用リソースの中に<NOMAILTO>を追加して
++ あります。
++ 
++ [How to apply this patch.]
++ 
++ パッチを適用するには、MHonArc-2.3.3を展開し、patchコマンドを実行して下さい。
++ 例:
++   gzip -d -c MHonArc2.3.3.tar.gz | tar xf -
++   patch -p1 -d MHonArc2.3.3 < MHonArc-Japanize-patch-1.6
++ 
++ 日本語メッセージを処理する場合は、リソースファイル examples/Japanize.mrc
++ の内容を、実際に使用するリソースファイルに追加して下さい。
++ 
++ [Distribution]
++ 
++ 再配布等に関しては、オリジナルに同梱のCOPYING(GNU General Public License)
++ に準ずるものとします。
++ 
++ [Contact]
++ 質問、バグ報告等は、眞柄まで御連絡下さい。
++ 
++                 眞柄 康弘 (Magara Yasuhiro) gama@paso.fujitsu.co.jp
++                 株式会社富士通オアシス開発 開発部第一開発課
++ 
++ [ChangeLog]
++ 
++ 1999.Jun.02 version 1.6
++   [del]mailtoリンク化け対策を廃止。
++        iso2022jp.plからmailto,extract_email_addressを削除。
++   [fix]mhinit.plの%Zone追加部分をリソースファイルへ移動。
++ 
++ 1998.Nov.05 version 1.5
++   [info]MHonArc-2.3.2用のファイル構成、install.me変更に対応。
++ 
++ 1998.Oct.27 version 1.4
++   [info]MHonArc-2.3.1用のファイル構成変更に対応。
++   [add]Namazuに対するMHonArc処理追加パッチを含めた。
++ 
++ 1998.Aug.14 version 1.3a
++   [info]MHonArc-2.3.0alpha用に修正。
++   [bug]Japanize.rcの MIMEArgs リソースにtypoがあったのを修正。
++        ('image/gif'が'mage/gif'になっていた)
++   [add]Japanize.rcのMIMEArgsを修正し、添付ファイルのConetnt-Typeが
++        application/octet-streamの時は元の拡張子で保存するようにした。
++   [bug]ドキュメント(00README.jp)に書いてあるパッチのファイル名が
++        古いままになっていたのを修正。
++ 
++ 1998.Jul.29 version 1.3
++   [add]連想配列m2h_external'CTExtにOASYS,Visio,XML関係のmedia-typeを追加した。
++ 
++ 1998.Apr.17 version 1.2
++   [bug]ヘッダのmailtoリンクが化けるバグを修正。
++        mhonarc'mailtoをiso_2022_jp'mailtoに置き換えた。
++   [bug]DateとThreadのIndexでヘッダの発信者名が化けるバグを修正。
++        mhonarc'extract_email_addressをiso_2022_jp'extract_email_address
++        のstubに変更。
++        mhonarc'extract_email_nameでmhonarc'extract_email_addressの
++        結果を利用するように変更。
++ 
++ 1998.Apr.16 version 1.1
++   [info]MHonArc-2.2.0の日本語対応及びNamazu-1.1.2対応パッチとした。
++   [bug]iso_2022_jp'str2sgmlで$offsetが初期化されないバグを修正。
++   [info]mhonarc'htmlize_iso2022jpをiso_2022_jp'str2sgmlに統合。
++   [info]mhinit.plへのパッチをリソースファイルへ移動。
++ 
++ 1997.Sep.26 version 1.0
++   [info]MHonArc-2.1の日本語対応及びSSE-1.1対応パッチとして作成
+diff -crNBb MHonArc2.3.3/FILELIST MHonArc2.3.3.jp/FILELIST
+*** MHonArc2.3.3/FILELIST	Mon Nov  9 03:06:22 1998
+--- MHonArc2.3.3.jp/FILELIST	Wed Jun  2 15:25:11 1999
+***************
+*** 4,9 ****
+--- 4,10 ----
+  bin:mha-dbrecover
+  lib:lib/base64.pl
+  lib:lib/ewhutil.pl
++ lib:lib/iso2022jp.pl
+  lib:lib/iso8859.pl
+  lib:lib/mhamain.pl
+  lib:lib/mhdb.pl
+diff -crNBb MHonArc2.3.3/examples/Japanize.mrc MHonArc2.3.3.jp/examples/Japanize.mrc
+*** MHonArc2.3.3/examples/Japanize.mrc	Thu Jan  1 09:00:00 1970
+--- MHonArc2.3.3.jp/examples/Japanize.mrc	Wed Jun  2 15:31:27 1999
+***************
+*** 0 ****
+--- 1,34 ----
++ <!--	MHonArc resource file
++ 
++ 	Japanize.mrc 1.7 1999/06/02
++ 
++ 	For messages which has Japanized(iso-2022-jp) headers.
++   -->
++ 
++ <!-- In Japan, default charset is 'ISO-2022-JP'. -->
++ <CharsetConverters>
++ plain;          iso_2022_jp::str2sgml;	iso2022jp.pl
++ iso-2022-jp;    iso_2022_jp::str2sgml;	iso2022jp.pl
++ default;        iso_2022_jp::str2sgml;	iso2022jp.pl
++ </CharsetConverters>
++ <MIMEArgs>
++ text/plain;     default=iso-2022-jp
++ application/octet-stream;       usenameext
++ </MIMEArgs>
++ <!-- Japanese Standard Time -->
++ <TimeZones>
++ JST:-9
++ </TimeZones>
++ 
++ <!-- keep SUBJECTNA in multibyte character(Japanese) environment -->
++ <MsgPgBegin>
++ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML//EN">
++ <HTML>
++ <HEAD>
++ <TITLE>$SUBJECTNA$</TITLE>
++ </HEAD>
++ <BODY>
++ </MsgPgBegin>
++ 
++ <!-- I recommend strongly to use NOMAILTO resource element. -->
++ <NOMAILTO>
+diff -crNBb MHonArc2.3.3/examples/Namazu.mrc MHonArc2.3.3.jp/examples/Namazu.mrc
+*** MHonArc2.3.3/examples/Namazu.mrc	Thu Jan  1 09:00:00 1970
+--- MHonArc2.3.3.jp/examples/Namazu.mrc	Wed Jun  2 15:35:55 1999
+***************
+*** 0 ****
+--- 1,61 ----
++ <!--	MHonArc resource file
++ 
++ 	Namazu.mrc 1.2 1999/06/02
++ 
++ 	This resource file makes html files fit for Namazu.
++ 	Namazu is the full text retrieval search system.
++              http://openlab.ring.gr.jp/namazu/
++   -->
++ 
++ <IDXFNAME>
++ index.html
++ </IDXFNAME>
++ 
++ <SORT>
++ <REVERSE>
++ 
++ <TSORT>
++ <!-- TREVERSE -->
++ 
++ <MULTIPG>
++ <IDXSIZE>
++ 1000
++ </IDXSIZE>
++ 
++ <FieldOrder>
++ subject
++ from
++ date
++ message-id
++ -extra-
++ </FieldOrder>
++ 
++ <!-- rcvdist(MH command) insert 'Resent-' header -->
++ <!-- To and Reply-To field has no information because
++ 	nearly all mail have the same address in this field --> 
++ <Excs>
++ content-
++ errors-to
++ forward
++ lines
++ message-id
++ mime-
++ nntp-
++ originator
++ path
++ precedence
++ received
++ replied
++ return-path
++ status
++ via
++ x-
++ resent-
++ sender
++ reply-to
++ to
++ </Excs>
++ 
++ <!-- eliminate Prev and Next links at bottom of page -->
++ <BotLinks>
++ </BotLinks>
+diff -crNBb MHonArc2.3.3/lib/iso2022jp.pl MHonArc2.3.3.jp/lib/iso2022jp.pl
+*** MHonArc2.3.3/lib/iso2022jp.pl	Thu Jan  1 09:00:00 1970
+--- MHonArc2.3.3.jp/lib/iso2022jp.pl	Wed Jun  2 15:41:34 1999
+***************
+*** 0 ****
+--- 1,121 ----
++ ##---------------------------------------------------------------------------##
++ ##  File:
++ ##	@(#)  iso2022jp.pl 1.1 99/06/02 @(#)
++ ##  Author:
++ ##      Magara Yasuhiro       gama@paso.fujitsu.co.jp
++ 
++ package iso_2022_jp;
++ 
++ ###############################################################################
++ ##	Mapping arrays for characters to entity references
++ ###############################################################################
++ 
++ ##---------------------------------------------------------------------------
++ ##      US-ASCII/Common characters
++ ##---------------------------------------------------------------------------
++ 
++ %US_ASCII_To_Ent = (
++   #--------------------------------------------------------------------------
++   # Hex Code	Entity Ref	# ISO external entity and description
++   #--------------------------------------------------------------------------
++     0x26,	"&amp;",	# ISOnum : Ampersand
++     0x3C,	"&lt;", 	# ISOnum : Less-than sign
++     0x3E,	"&gt;", 	# ISOnum : Greater-than sign
++ 
++     0xA0,	"&nbsp;",	# ISOnum : NO-BREAK SPACE
++ );
++ 
++ ##---------------------------------------------------------------------------
++ ##      ISO-2022-JP
++ ##---------------------------------------------------------------------------
++ 
++ %ISO_2022_JP_To_Ent = ();
++ 
++ ###############################################################################
++ ##	Routines
++ ###############################################################################
++ 
++ ##---------------------------------------------------------------------------##
++ ##	str2str returns a string received and do nothing else.
++ ##
++ ##	    $return_data = iso_2022_jp'str2str($data, $charset);
++ ##
++ sub str2str {
++   return $_[0];
++ }
++ ##---------------------------------------------------------------------------##
++ ##	str2sgml converts a string encoded by $charset to an sgml
++ ##	string where special characters are converted to entity
++ ##	references.
++ ##
++ ##	$return_data = iso_2022_jp'str2sgml($data, $charset, $only8bit);
++ ##
++ ##	If $only8bit is non-zero, than only 8-bit characters are
++ ##	translated.
++ ##
++ 
++ sub str2sgml {
++     local($data, $charset, $only8bit) = ($_[0], $_[1], $_[2]);
++     local($ret) = '';
++     local($offset, $len);
++ 
++     # Get mapping (this method works for Perl 4 and 5)
++     $charset =~ tr/a-z/A-Z/;
++     $charset =~ tr/-/_/;
++     local(*map) = ("${charset}_To_Ent");
++ 
++     # Convert string
++     while ($data ne "") {
++         if ($data =~ /^\033\([BJ]/) { # Single Byte Segment
++             $data = $';
++             $ret .= $&;
++         } elsif ($data =~ /^\033\$[\@AB]|\033\$\([CD]/) { # Double Byte Segment
++             $data = $';
++             $ret .= $&;
++             while(1) {
++                 if ($data =~ /^([!-~][!-~])+/) { # Double Char plain text
++                     $data = $';
++                     $ret .= $&;
++                 } elsif ($data =~ /\033\.[A-F]/) { # G2 Designate Sequence
++                     $data = $';
++                     $ret .= $&;
++                 } elsif ($data =~ /\033N[ -\x7f]/) { # Single Shift Sequence
++                     $data = $';
++                     $ret .= $&;
++                 } else {
++                     last;
++                 }
++             }
++ 	} elsif ($data =~ /^[^\033]+/) {      # ASCII plain text
++ 	    $data = $';
++ 	    $ascii_text = $&;
++ 
++ 	    # Convert string
++ 	    $len = length($ascii_text);
++ 	    $offset = 0;
++ 	    while ($offset < $len) {
++ 	        $char = unpack("C", substr($ascii_text, $offset++, 1));
++ 	        if ($only8bit && $char < 0xA0) {
++ 		    $ret .= pack("C", $char);
++ 	        } else {
++ 		    $ret .= ($map{$char} || $US_ASCII_To_Ent{$char} ||	# '
++ 			     pack("C", $char));
++ 	        }
++ 	    }
++         } elsif ($data =~ /\033\.[A-F]/) { # G2 Designate Sequence
++ 	    $data = $';
++ 	    $ret .= $&;
++ 	} elsif ($data =~ /\033N[ -\x7f]/) { # Single Shift Sequence
++ 	    $data = $';
++ 	    $ret .= $&;
++ 	} else {
++ 	    $ret .= $data;
++ 	    last;
++         }
++     }
++     $ret .= "\033\(J" if ($ret !~ /\033\(J$/);
++     $ret;
++ }
++ ##---------------------------------------------------------------------------##
++ 
++ 1;
+diff -crNBb MHonArc2.3.3/lib/mhmimetypes.pl MHonArc2.3.3.jp/lib/mhmimetypes.pl
+*** MHonArc2.3.3/lib/mhmimetypes.pl	Mon Oct 26 03:36:06 1998
+--- MHonArc2.3.3.jp/lib/mhmimetypes.pl	Wed Jun  2 15:25:11 1999
+***************
+*** 54,64 ****
+--- 54,71 ----
+      'application/studiom',		'smp:Studio M file',
+      'application/timbuktu',		'tbt:timbuktu file',
+      'application/vnd.framemaker',	'fm:FrameMaker document',
++     'application/vnd.fujitsu.oasys',	'oas:FUJITSU OASYS Document format',
++     'application/vnd.fujitsu.oasys2',	'oa2:FUJITSU OASYS Document format 2',
++     'application/vnd.fujitsu.oasys3',	'oa3:FUJITSU OASYS Document format 3',
++     'application/vnd.fujitsu.oasysgp',	'fg5:FUJITSU OASYS GraphPro file',
++     'application/vnd.fujitsu.oasysprs',	'bh2:FUJITSU OASYS Presentation file',
+      'application/vnd.hp-hpgl',          'hpg,hpgl:HPGL file',
++     'application/vnd.lotus-1-2-3',          '123,wk4,wk3,wk1:Lotus 1-2-3 file',
+      'application/vnd.mif', 		'mif:Frame MIF document',
+      'application/vnd.ms-excel',         'xls:MS-Excel spreadsheet',
+      'application/vnd.ms-powerpoint',    'ppt:MS-Powerpoint presentation',
+      'application/vnd.ms-project',	'mpp:MS-Project file',
++     'application/vnd.visio',		'vsd:Visio file',
+      'application/vis5d',		'v5d:Vis5D dataset',
+      'application/winhlp',		'hlp:WinHelp document',
+      'application/wordperfect5.1',	'wp:WordPerfect 5.1 document',
+***************
+*** 118,123 ****
+--- 125,131 ----
+      'application/x-ustar', 		'ustar:UStar file',
+      'application/x-wais-source', 	'src:WAIS Source',
+      'application/x-zip-compressed',	'zip:Zip compressed data',
++     'application/xml',			'xml:Extensible Markup Language',
+      'application/zip', 			'zip:Zip archive',
+  
+      'audio/basic', 			'snd:Basic audio',
+***************
+*** 197,206 ****
+--- 205,216 ----
+      'text/html',			'html:HTML document',
+      'text/plain',			'txt:Text document',
+      'text/richtext',			'rtx:Richtext document',
++     'text/rtf', 			'rtf:Rich Text Format file',
+      'text/setext',			'stx:Setext document',
+      'text/sgml',			'sgml:SGML document',
+      'text/tab-separated-values',	'tsv:Tab separated values',
+      'text/x-speech',			'talk:Speech document',
++     'text/xml',				'xml:Extensible Markup Language',
+  
+      'video/isivideo',			'fvi:isi video',
+      'video/mpeg',			'mpg,mpeg,mpe:MPEG movie',

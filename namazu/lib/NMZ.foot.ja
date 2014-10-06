@@ -1,0 +1,13 @@
+<HR>
+<P>
+この全文検索システムは
+<STRONG><A HREF="$NMZ_URL">Namazu</A> 
+<!-- VERSION --> v$VERSION <!-- VERSION -->
+</STRONG>
+によって構築されています。
+</P>
+<ADDRESS>
+<A HREF="mailto:$ADMIN">$ADMIN</A>
+</ADDRESS>
+</BODY>
+</HTML>

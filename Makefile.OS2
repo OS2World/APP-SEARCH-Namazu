@@ -1,0 +1,387 @@
+#################################################################
+## Makefile for Namazu
+## original of this file was made by Mr. Fumiyasu SATO. Thanks.
+## Makefile for Namazu/2 was made by Kaz SHiMZ 
+
+## for OS/2 EMX
+SHELL		= sh.exe
+
+##################################################################
+## System
+## select your system (UNIX or WIN32 or OS2).
+
+SYSTEM		= OS2
+CP		= cp -p
+
+##################################################################
+## Language
+## (ja or en).
+
+LANGUAGE	= ja
+
+##################################################################
+## Directories
+
+BASEDIR		= d:/usr/local/
+CGIDIR		= d:/www/cgi-bin    # for IBM ICS / ICSS httpd
+NAMAZUDIR	= $(BASEDIR)/namazu
+BINDIR_SYS	= $(BASEDIR)/bin  # install 'namazu' 'mknmz' command.
+BINDIR		= $(NAMAZUDIR)/bin
+INDEXDIR	= $(NAMAZUDIR)/index
+DOCDIR		= $(NAMAZUDIR)/doc
+LIBDIR		= $(NAMAZUDIR)/lib
+CONTRIBDIR	= $(NAMAZUDIR)/contrib
+
+##################################################################
+## Pathname of namazu.conf
+
+OPT_NAMAZU_CONF		= $(LIBDIR)/namazu.conf
+
+##################################################################
+## Programs' pathname
+##
+## If you intend to use Namazu with OS/2, settings below is highly
+## recommended. Perl is not necessary placed in /usr/bin , but
+## necessary placed in the directory in PATH. nkf2.exe and kakasi.exe
+## are also necessary placed in the directory in PATH.
+
+OPT_PATH_PERL		= /usr/bin/perl
+OPT_PATH_NKF		= nkf2
+OPT_PATH_KAKASI		= kakasi
+OPT_PATH_CHASEN		= chasen
+
+##################################################################
+## Administrator's email address
+
+OPT_ADMIN_EMAIL		= webmaster@foo.bar.jp
+
+##################################################################
+## CGI-BIN directory
+## (relative URL)
+
+OPT_URL_CGIBIN	= /cgi-bin
+
+##################################################################
+## Pathname of Helper Programs
+##  * OPT_HELPER_ZCAT  :  program that expand compressed file
+##  * OPT_HELPER_MAN   :  program that format man file
+##
+## If you intend to use Namazu with OS/2, settings below is highly
+## recommended. necessary placed in the directory in PATH.
+##
+
+OPT_HELPER_ZCAT		= zcat
+OPT_HELPER_MAN		= groff -man -Tnippon
+
+##################################################################
+## Scoring method
+##   * SIMPLE :  score is simply calculated by term frequency
+##   * TFIDF  :  score is calculated by tfidf method
+##     (It's meaningful when query contains two or over keywords)
+
+SCORING		= TFIDF
+
+##################################################################
+## Target for Make
+##   * mknmz.cmd       :  Indexer
+##   * wdnmz.cmd       :  Program that print registered words
+##   * rvnmz.cmd       :  Program that reverse the byte order
+##   * clnmz.cmd       :  Program that convert URL in NMZ.f
+##   * vfnmz.cmd       :  Program to view NMZ.f as HTML with lynx
+##   * gcnmz.cmd       :  Program to collect garbage in NMZ.*
+##   * gtnmz.cmd       :  Program to check the number of total indexed files
+##   * mailutime.cmd   :  Program to modify file time stamp
+##   * documents       :  same as left description :-)
+##   * namazu.exe      :  OS/2  executable
+##   * namazu.cgi.exe  :  CGI executable  (copy of namazu.exe)
+
+TARGET		= mknmz.cmd wdnmz.cmd rvnmz.cmd clnmz.cmd vfnmz.cmd \
+		  mailutime.cmd gcnmz.cmd gtnmz.cmd namazu.exe \
+		  namazu.cgi.exe
+
+TMP_PL		= mknmz wdnmz rvnmz clnmz vfnmz mailutime gcnmz gtnmz
+
+##################################################################
+## Target Files
+## target file for indexing (case insensitive)
+## ("_default" is a file httpdown would generate.)
+## do *not* use '$' and '^' regular expression meta charactor.
+## that will be automatically appended by mknmz.pl.
+##
+## *CAUTION*: '\' -> '\\', '$' -> '$$'
+
+OPT_TARGET_FILE	= .*\\.html?|.*\\.txt|.*_default
+
+##################################################################
+## Deny Files
+## this regular expression describes the names of the files which
+## you do *not* want to index (case insensitive). this setting is
+## effective when mknmz runs with -a option.
+## do *not* use '$' and '^' regular expression meta charactor.
+## that will be automatically appended by mknmz.pl.
+##
+## *CAUTION*: '\' -> '\\', '$' -> '$$'
+
+OPT_DENY_FILE	= .*\\.gif|.*\\.(jpg|jpeg)|.*\\.tar\\.gz|core|.*\\.bak|.*~|\\..*|\\x23.*|NMZ\\..*
+
+##################################################################
+## Directory Index
+## name of the file or files which can be abbreviated.
+## (specify by regular expression)
+## e.g. index.html|index.htm|Default.html
+## it's useful to use Namazu as WWW search engine.
+## ("_default" would be made by httpdown)
+
+OPT_DEFAULT_FILE		= _default
+
+##################################################################
+## On Memory Max
+## max size of memory allocated by index process.
+## if you have much memory machine, you can increase this value
+## and indexing speed will improve.
+
+OPT_ON_MEMORY_MAX	= 5000000
+
+##################################################################
+## File Size Limitation
+## the file larger than this value may not allowed to be indexed.
+
+OPT_FILE_SIZE_LIMIT	= 600000
+
+##################################################################
+## Robots.txt
+OPT_HTDOCUMENT_ROOT	= /usr/local/apache/share/htdocs
+OPT_HTDOCUMENT_ROOT_URL_PREFIX	= http://www.foo.domain.jp/
+OPT_ROBOTS_EXCLUDE_URLS	= ''
+
+##################################################################
+## Japanese Processor
+##   * KAKASI       :  use KAKASI
+##   * CHASEN       :  use ChaSen
+##   * CHASEN_MORPH :  use ChaSen with morphological processing
+
+WAKATI		= KAKASI
+
+##################################################################
+## Defines
+##   * -DNOCONF        : no use namazu.conf
+
+DEFINES	= -DINDEXDIR=\"$(INDEXDIR)\" -DSCORING=$(SCORING) \
+	-D$(SYSTEM) -DOPT_NAMAZU_CONF=\"$(OPT_NAMAZU_CONF)\" \
+	-DLANGUAGE=\"$(LANGUAGE)\" -DMSIE4MACFIX
+
+##################################################################
+## General Set-up
+
+CC		= gcc
+DEFS		=   -DHAVE_LIBM=1  -DSTDC_HEADERS=1  -DHAVE_FCNTL_H=1  -DHAVE_UNISTD_H=1  -DHAVE_ALLOCA_H=1  -DHAVE_ALLOCA=1  -DHAVE_MEMMOVE=1  
+AR		= ar cq
+DEPEND		= makedepend
+RANLIB		= ar s
+RM		= rm -f
+ARCDIR		= ../ARC
+
+##################################################################
+## Flags
+## optimization option and etc.
+
+## for OS/2 EMX
+EMXFLAGS	= -Zmts
+
+INCLUDES	=
+CFLAGS		= -O2 $(DEFINES) $(DEFS)  -Wall $(INCLUDES) $(EMXFLAGS)
+LDFLAGS		= -lwrap -s -lm
+EXTRA_CFLAGS	=
+EXTRA_LDFLAGS	=
+
+##################################################################
+## Object Files
+
+SRCS	=	namazu.c codeconv.c messages.c parser.c cgi.c \
+		wakati.c conf.c hlist.c output.c search.c \
+		values.c form.c re_match.c regex.c util.c seed.c
+
+OBJS	=	${SRCS:.c=.o}
+
+##################################################################
+
+.c.o:
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c $*.c
+
+all:	$(TARGET)
+
+mknmz: mknmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    -e 's!%OPT_PATH_KAKASI%!$(OPT_PATH_KAKASI)!g' \
+	    -e 's!%OPT_PATH_CHASEN%!$(OPT_PATH_CHASEN)!g' \
+	    -e 's!%OPT_HELPER_ZCAT%!$(OPT_HELPER_ZCAT)!g' \
+	    -e 's!%OPT_HELPER_MAN%!$(OPT_HELPER_MAN)!g' \
+	    -e 's!%OPT_WAKATI_DEFAULT%!$(WAKATI)!g' \
+	    -e 's!%OPT_ADMIN_EMAIL%!$(OPT_ADMIN_EMAIL)!g' \
+	    -e 's!%OPT_ADMIN_NAME%!$(OPT_ADMIN_NAME)!g' \
+	    -e 's!%OPT_URL_CGIBIN%!$(OPT_URL_CGIBIN)!g' \
+	    -e 's!%OPT_TARGET_FILE%!$(OPT_TARGET_FILE)!g' \
+	    -e 's!%OPT_DENY_FILE%!$(OPT_DENY_FILE)!g' \
+	    -e 's!%OPT_DEFAULT_FILE%!$(OPT_DEFAULT_FILE)!g' \
+	    -e 's!%OPT_ON_MEMORY_MAX%!$(OPT_ON_MEMORY_MAX)!g' \
+	    -e 's!%OPT_FILE_SIZE_LIMIT%!$(OPT_FILE_SIZE_LIMIT)!g' \
+	    -e 's!%OPT_LIBDIR%!$(LIBDIR)!g' \
+	    -e 's!%OPT_LANGUAGE%!$(LANGUAGE)!g' \
+	    mknmz.pl > $@
+	chmod +x $@
+
+wdnmz: wdnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    wdnmz.pl > $@
+	chmod +x $@
+
+vfnmz: vfnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    vfnmz.pl > $@
+	chmod +x $@
+
+gcnmz: gcnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    gcnmz.pl > $@
+	chmod +x $@
+
+gtnmz: gtnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    gtnmz.pl > $@
+	chmod +x $@
+
+mailutime: mailutime.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    mailutime.pl > $@
+	chmod +x $@
+
+clnmz: clnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    clnmz.pl > $@
+	chmod +x $@
+
+rvnmz: rvnmz.pl
+	rm -f $@
+	sed -e 's!%OPT_PATH_PERL%!$(OPT_PATH_PERL)!g' \
+	    -e 's!%OPT_SYSTEM%!$(SYSTEM)!g' \
+	    -e 's!%OPT_PATH_NKF%!$(OPT_PATH_NKF)!g' \
+	    rvnmz.pl > $@
+	chmod +x $@
+
+mknmz.cmd: mknmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > mknmz.cmd
+	cat mknmz >> mknmz.cmd
+
+wdnmz.cmd: wdnmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > wdnmz.cmd
+	cat wdnmz >> wdnmz.cmd
+
+vfnmz.cmd: vfnmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > vfnmz.cmd
+	cat vfnmz >> vfnmz.cmd
+
+gcnmz.cmd: gcnmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > gcnmz.cmd
+	cat gcnmz >> gcnmz.cmd
+
+gtnmz.cmd: gtnmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > gtnmz.cmd
+	cat gtnmz >> gtnmz.cmd
+
+mailutime.cmd: mailutime
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > mailutime.cmd
+	cat mailutime >> mailutime.cmd
+
+clnmz.cmd: clnmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > clnmz.cmd
+	cat clnmz >> clnmz.cmd
+
+rvnmz.cmd: rvnmz
+	rm -f $@
+	@echo "EXTPROC perl.exe -Sx" > rvnmz.cmd
+	cat rvnmz >> rvnmz.cmd
+
+namazu.exe: $(OBJS)
+	$(CC) $(OBJS) $(CFLAGS) $(LDFLAGS) $(EXTRA_LDFLAGS)-o $@
+
+namazu.cgi.exe: namazu.exe
+	cp namazu.exe namazu.cgi.exe
+
+install_cgi: all
+	if [ ! -d $(CGIDIR) ]; then \
+	    mkdir -p $(CGIDIR); \
+	fi
+	cp namazu.cgi.exe $(CGIDIR)
+
+install: all
+	if [ ! -d $(BINDIR) ]; then \
+	    mkdir -p $(BINDIR); \
+	fi
+	if [ ! -d $(INDEXDIR) ]; then \
+	    mkdir -p $(INDEXDIR); \
+	fi
+	if [ ! -d "$(DOCDIR)/ja" ]; then \
+	    mkdir -p "$(DOCDIR)/ja"; \
+	fi
+	if [ ! -d "$(DOCDIR)/en" ]; then \
+	    mkdir -p "$(DOCDIR)/en"; \
+	fi
+	if [ ! -d $(LIBDIR) ]; then \
+	    mkdir -p $(LIBDIR); \
+	fi
+	if [ ! -d $(CONTRIBDIR) ]; then \
+	    mkdir -p $(CONTRIBDIR); \
+	fi
+	if [ ! -d $(BINDIR_SYS) ]; then \
+	    mkdir -p $(BINDIR_SYS); \
+	fi
+	$(CP) mknmz.cmd wdnmz.cmd rvnmz.cmd clnmz.cmd namazu.exe vfnmz.cmd mailutime.cmd gcnmz.cmd gtnmz.cmd $(BINDIR)
+	$(CP) ../COPYING ../ToDo ../ChangeLog $(DOCDIR)
+	$(CP) ../README.ja ../doc/ja/* "$(DOCDIR)/ja"
+	$(CP) ../README.en ../doc/en/* "$(DOCDIR)/en"
+	$(CP) ../lib/* $(LIBDIR)
+	$(CP) ../contrib/* $(CONTRIBDIR)
+	$(CP) namazu.exe mknmz.cmd $(BINDIR_SYS)
+
+clean:
+	$(RM) $(TARGET) $(TMP_PL) *.o config.cache config.log config.status
+
+cleanall: clean
+	#$(DEPEND) -- --
+	$(RM) Makefile.bak
+
+depend:
+#	$(DEPEND) -- $(CFLAGS) -- $(SRCS)
+
+tar:
+	$(MAKE) cleanall
+	(ARCHIVE=`pwd|sed 's@[^/]*/@@g'`; \
+	    ( \
+		cd ..; \
+		tar cf - $${ARCHIVE}/* | \
+		gzip -c \
+	    ) > ${ARCDIR}/$${ARCHIVE}.tar.gz \
+	)
+

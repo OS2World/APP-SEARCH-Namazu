@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML i18n//EN">
+<html>
+<head>
+<meta name="keywords" content="namazu full text retrieval search engine system">
+<link rev=MADE href="mailto:satoru-t@is.aist-nara.ac.jp">
+<title>Namazu the full text retrieval search system</title>
+</head>
+<body lang="en">
+<h1>Namazu the full text retrieval search system</h1>
+<p>Last Modified: 2000-01-26</p>
+
+<hr>
+
+<h2>Introduction</h2>
+
+<p>
+Namazu is a search engine software intended for easy use.  Not
+only it works as a CGI program for the small or medium scale WWW
+search engine, but also works as a personal use such as search
+system for local HDDs. Currently, search clients for Mule, Tcl/Tk,
+JAVA and Win32 are available.
+</p>
+
+<p>
+(The Japanese word `Namazu' means `catfish' in English)
+</p>
+
+
+<p>
+Namazu can works on UNIX, Win32 and OS/2 environment.  For Win32,
+<a href="http://www.tama.or.jp/%7Ekenzo-/Namazu/">Namazu the full text retrieval search system for Win32</a> has maintained by Hirose-san.<br> For OS/2, <a
+href="http://www.dd.iij4u.or.jp/%7Ekshimz/warp/namazu.html">OS/2
+ port of Namazu the full text retrieval search system</a> has maintained by Shimizu-san.  Each page
+has binary package.
+</p>
+
+
+<p>
+Development of Namazu consists of lots of contributers.
+I operate a mailing list to discusss the development.
+If you are interested in Namazu, please participate in it.
+(but there is basically discussed in Japanese only...)
+</p>
+
+<h2>News!</h2>
+
+<ul>
+<li><a href="#RELEASE">Version 1.3.0.11 released!</a>
+2000-01-26<br> Fixed a security hole in CGI mode which
+allows malicious person to put a garbage file on a Web
+server's directory such as /tmp.
+<li><a href="http://kakasi.namazu.org/">KAKASI v2.3.0</a> released!
+1999-09-28<br>
+Many patches are applied and be configurized.
+<li>Namazu Web site has been moved! 1999-03-12<br>
+After this, URL of Namazu Web site is at 
+<a href="http://openlab.ring.gr.jp/namazu/">
+http://openlab.ring.gr.jp/namazu/</a>.
+</ul>
+
+<h2><a name="CHARACTERISTICS">Characteristics</a></h2>
+
+<p>
+This search engine consists of indexer and search client.
+The former is written in Perl and the latter is in C.
+Indexer makes index in advance for quickly searching.
+It can search almost 100 megabyte documents within one second.
+I think it's not too slow.
+But, of course there is intensive influence of disk cache.
+As a reason of algorism, its performance would not depend on size of index,
+it increase by logarithmic scale.
+</p>
+
+<p>
+By using namazu.el, you can use Namazu on Mule,
+similarly you can search with Namazu on X Window System by using <a href="http://www.tama.or.jp/%7Ekenzo-/Namazu/tknamazu/">tknamazu</a> and on Win32 by using <a href="http://www.na.rim.or.jp/%7Es_yam/library/search-s.html">Search-S</a>.
+</p>
+
+<p>
+Search client would not require much memory and it singly works as CGI,
+so it's comparatively light I think.
+</p>
+
+<p> As Namazu is designed for Mail/News as well, It's especially
+useful to use Namazu for mailing list or netnews' search system.
+</p>
+
+<p> Namazu supports AND, OR and NOT search.  Result of search will
+be printed in order of score and it has abstract like <a
+href="http://altavista.digital.com/">AltaVista</a> or <a
+href="http://odin.ingrid.org/">ODIN</a>.  That summary is made by
+structure of HTML's headings.  Besides, if result couldn't print
+on one page, it will automatically be splited and it can be shown
+page by page (in 20 lots by default.)  </p>
+
+<p> The score would not only be calculated by term frequency, but
+also be caluclated by weight of HTML elements.  Furthermore,
+Namazu supports meta information such as <code>&lt;META
+NAME="keywords" CONTENT="</code><var>foo
+bar</var><code>"&gt;</code>.  </p>
+
+<p> Namazu considers how to handle HTML document.  To take `ALT'
+description from &lt;IMG&gt; element, to decode entity sets, and
+to print result in correct HTML 4.0 Strict DTD HTML.</p>
+
+<p>
+Indexing process will take fifty minutes to index 25 MByte files with
+Linux Box has Pentium 166 MHz + 64 MB.
+</p>
+
+<p>
+For more information, read the <a href="manual.html">manual</a>.
+</p>
+
+<h2><a name="RELEASE">Download</a></h2>
+
+<p> I do distribute Namazu as free software (It is also called
+`open source software') under the terms of <a
+href="COPYING">General Public License version 2</a>.  </p>
+
+<h3><a name="SOURCE">Source distribution</a></h3>
+
+<ul>
+<li><a
+href="release/namazu-1.3.0.11.tar.gz">
+namazu-1.3.0.11.tar.gz</a> (nearly 337 KB)
+</ul>
+
+<p>
+<a href="proto/">Where beta version is.</a>
+</p>
+
+<h2>Related Links</h2>
+
+<p>
+<em>
+Attention: those pages are mostly written in Japanese.
+</em>
+</p>
+
+<ul>
+<li><a href="http://www.tama.or.jp/%7Ekenzo-/Namazu/">Namazu the full text retrieval search system for Win32</a><br>
+(Namazu the full text retrieval search system for Win32 by Hirose-san)
+<li><a href="http://www.dd.iij4u.or.jp/%7Ekshimz/warp/namazu.html">OS/2 port of Namazu the full text retrieval search system</a><br>
+(OS/2 port of Namazu the full text retrieval search system by Shimizu-san)
+<li><a href="http://www.tama.or.jp/%7Ekenzo-/Namazu/tknamazu/">Tcl/Tk Namazu client</a><br>
+(Tcl/Tk Namazu client by Hirose-san)
+<li><a href="http://www.na.rim.or.jp/%7Es_yam/library/search-s.html">search-s Version 0.7.1</a><br>
+(Page of Win32 GUI client named `Search-s' for Namazu by Yamashita-san)
+<li><a href="http://www.kusastro.kyoto-u.ac.jp/%7Ebaba/wais/other-system.html">Lists of the full-text retrieval softwares which can handle japanese properly.</a><br>
+(No need to comment :-), by Baba-san)
+<li><a href="http://www.ingrid.org/w3conf-bof/search.html">Search Engines in Japan</a><br>
+(No need to comment :-), by Shimizu-san at ingrid project)
+<li><a href="http://rodem.ingrid.org:8080/w3conf-bof/w3-search.html">w3-search Mailing List</a><br>
+(Discuss the search engine in Japanese, by Shimizu-san at ingrid project)
+</ul>
+
+
+<h2>Author</h2>
+
+<ul>
+<li><strong>Name:</strong> Satoru Takabayashi
+<li><strong>email:</strong> <a href="mailto:satoru-t@is.aist-nara.ac.jp">satoru-t@is.aist-nara.ac.jp</a>
+</ul>
+
+<hr>
+
+<p>
+<a href="http://openlab.ring.gr.jp/namazu/">Namazu homepage</a>
+</p>
+<address>
+satoru-t@is.aist-nara.ac.jp
+</address>
+</body>
+</html>
